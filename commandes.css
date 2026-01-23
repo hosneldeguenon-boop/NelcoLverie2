@@ -1,0 +1,447 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.protocole {
+    background: #f8f9fa;
+    padding: 30px;
+    border-bottom: 3px solid #667eea;
+}
+
+.protocole h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.protocole-section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.protocole-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.protocole-section h4 {
+    color: #667eea;
+    margin: 15px 0 10px;
+    font-size: 1.1em;
+}
+
+.protocole-section ul {
+    margin-left: 20px;
+    line-height: 1.8;
+}
+
+.protocole-section li {
+    margin-bottom: 8px;
+}
+
+.sous-section {
+    background: #f8f9fa;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.structure-exemple {
+    background: #2d3748;
+    color: #48bb78;
+    padding: 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+}
+
+.form-section {
+    padding: 30px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.form-section h2 {
+    color: #667eea;
+    margin-bottom: 25px;
+    font-size: 1.6em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 600;
+}
+
+.required {
+    color: #e74c3c;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+small {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.instruction {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    color: #856404;
+}
+
+.tas-group {
+    background: #f8f9fa;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 2px solid #667eea;
+}
+
+.tas-group h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.sous-tas-group {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border-left: 3px solid #764ba2;
+}
+
+.sous-tas-group h4 {
+    color: #764ba2;
+    margin-bottom: 12px;
+    font-size: 1.1em;
+}
+
+.groupe-final {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.groupe-final label {
+    margin-bottom: 0;
+}
+
+.radio-group {
+    display: grid;
+    gap: 10px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.radio-option:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 10px;
+    width: auto;
+}
+
+/* STYLES AMÉLIORÉS POUR LE RÉCAPITULATIF FINANCIER */
+.recap {
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%) !important;
+    border: 2px solid #667eea !important;
+    border-radius: 15px !important;
+    padding: 25px !important;
+    margin-top: 30px !important;
+}
+
+.recap h2 {
+    color: #667eea !important;
+    font-size: 24px !important;
+    margin-bottom: 20px !important;
+    text-align: center !important;
+}
+
+.prix-ligne {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 15px 20px !important;
+    margin-bottom: 12px !important;
+    background: white !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+.prix-ligne:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+}
+
+.prix-ligne label {
+    font-size: 16px !important;
+    color: #495057 !important;
+    font-weight: 500 !important;
+    flex: 1;
+}
+
+.prix-ligne span {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #667eea !important;
+    margin-left: 10px;
+}
+
+.prix-ligne.total {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 20px !important;
+    margin-top: 15px !important;
+    margin-bottom: 0 !important;
+    border: none !important;
+}
+
+.prix-ligne.total label,
+.prix-ligne.total span {
+    color: white !important;
+    font-size: 20px !important;
+}
+
+#reductionFidelite {
+    background: #d4edda !important;
+    border-left: 4px solid #28a745 !important;
+}
+
+#reductionFidelite label,
+#reductionFidelite span {
+    color: #155724 !important;
+}
+
+.btn-principal {
+    padding: 15px 40px;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 100%;
+}
+
+.btn-principal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.form-actions {
+    padding: 30px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s;
+}
+
+.modal-content h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* RESPONSIVE AMÉLIORÉ */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    .form-section {
+        padding: 20px;
+    }
+
+    .groupe-final {
+        grid-template-columns: 1fr;
+    }
+
+    .recap {
+        padding: 20px !important;
+    }
+    
+    .prix-ligne {
+        padding: 12px 15px !important;
+        flex-direction: row !important;
+        flex-wrap: wrap;
+    }
+    
+    .prix-ligne label {
+        font-size: 14px !important;
+        flex: 1 1 60%;
+    }
+    
+    .prix-ligne span {
+        font-size: 16px !important;
+        flex: 0 0 auto;
+    }
+    
+    .prix-ligne.total {
+        padding: 15px !important;
+    }
+    
+    .prix-ligne.total label,
+    .prix-ligne.total span {
+        font-size: 18px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .protocole {
+        padding: 20px 15px;
+    }
+
+    .form-section {
+        padding: 15px;
+    }
+
+    .tas-group {
+        padding: 15px;
+    }
+
+    .sous-tas-group {
+        padding: 12px;
+    }
+
+    .prix-ligne {
+        padding: 10px 12px !important;
+    }
+    
+    .prix-ligne label {
+        font-size: 13px !important;
+    }
+    
+    .prix-ligne span {
+        font-size: 15px !important;
+    }
+    
+    .prix-ligne.total label,
+    .prix-ligne.total span {
+        font-size: 16px !important;
+    }
+
+    .btn-principal {
+        padding: 12px 30px;
+        font-size: 1em;
+    }
+}

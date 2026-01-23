@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nelco Laverie - Lavage, Séchage, Repassage</title>
+    <style>
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #4e1676 0%, #7020A0 50%, #8a2ec7 100%);
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 20px;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-img {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .logo-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .logo-welco {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 2px;
+        }
+
+        .logo-laverie {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 3px;
+            margin-top: -5px;
+        }
+
+        .nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            color: #ffd700;
+            border-bottom-color: #ffd700;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .mobile-menu-toggle span {
+            width: 30px;
+            height: 3px;
+            background-color: #fff;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 600px;
+            background: linear-gradient(135deg, #4e1676 0%, #7020A0 50%, #8a2ec7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #ffd700;
+            color: #0066cc;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-primary:hover {
+            background-color: #ffed4e;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background-color: white;
+            color: #0066cc;
+            transform: translateY(-3px);
+        }
+
+        /* Info Section */
+        .info-section {
+            padding: 4rem 0;
+            background-color: white;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 102, 204, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 102, 204, 0.2);
+        }
+
+        .info-icon {
+            color: #0066cc;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-card h3 {
+            font-size: 1.5rem;
+            color: #0066cc;
+            margin-bottom: 1rem;
+        }
+
+        .info-details p {
+            margin-bottom: 1rem;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .phone {
+            color: #0099ff;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Services Section */
+        .services-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #0066cc;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: white;
+            padding: 2.5rem 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 102, 204, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0, 102, 204, 0.2);
+        }
+
+        .service-icon {
+            color: #0066cc;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-card h3 {
+            font-size: 1.4rem;
+            color: #0066cc;
+            margin-bottom: 1rem;
+        }
+
+        .service-card p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Why Us Section - CORRECTIONS PRINCIPALES ICI */
+        .why-us-section {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #4e1676 0%, #7020A0 50%, #8a2ec7 100%);
+            color: white;
+            /* Forcer l'affichage sur tous les appareils */
+            min-height: 400px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .why-us-section .section-title {
+            color: white;
+            /* Assurer la visibilité du titre */
+            position: relative;
+            z-index: 2;
+        }
+
+        .why-us-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .why-card {
+            /* Fond visible par défaut sur mobile */
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 2.5rem 2rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, background 0.3s ease;
+            /* S'assurer que le contenu est visible */
+            color: white;
+            position: relative;
+        }
+
+        .why-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .why-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            /* Forcer l'affichage */
+            display: block;
+            opacity: 1;
+        }
+
+        .why-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: white;
+            opacity: 1;
+        }
+
+        .why-card p {
+            font-size: 1rem;
+            opacity: 1;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Interactions Section - CORRECTION DE L'ESPACE BLANC */
+        .interactions-section {
+            padding: 5rem 0;
+            /* Enlever le fond violet pour éviter les conflits */
+            background: linear-gradient(135deg, #2d0a4e 0%, #4e1676 50%, #6b1fa0 100%);
+            /* Assurer qu'il n'y a pas d'espace blanc */
+            margin: 0;
+            position: relative;
+        }
+
+        .interactions-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .interaction-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #000000 0%, #111111 50%, #000000 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
+        }
+
+        .interaction-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 102, 204, 0.3);
+            background: linear-gradient(135deg, #8b008b 0%, #ff00ff 50%, #ff69b4 100%);
+        }
+
+        .btn-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin: 0;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .footer-section h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .footer-section p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            .header .container {
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                gap: 0.5rem;
+            }
+
+            .logo-img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .nav {
+                order: 3;
+                width: 100%;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+
+            .nav.active {
+                max-height: 500px;
+            }
+
+            .nav ul {
+                flex-direction: column;
+                gap: 0;
+                padding: 1rem 0;
+            }
+
+            .nav li {
+                width: 100%;
+                text-align: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .nav a {
+                display: block;
+                padding: 1rem;
+            }
+
+            .hero {
+                height: auto;
+                min-height: 500px;
+                padding: 3rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                padding: 0.9rem 2rem;
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+                padding: 0 1rem;
+            }
+
+            .info-section,
+            .services-section,
+            .why-us-section,
+            .interactions-section {
+                padding: 3rem 0;
+            }
+
+            .info-cards,
+            .services-grid,
+            .why-us-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .info-card,
+            .service-card {
+                padding: 2rem 1.5rem;
+            }
+
+            /* CORRECTIONS SPÉCIFIQUES MOBILE */
+            .why-us-section {
+                /* S'assurer que le fond est visible */
+                background: linear-gradient(135deg, #4e1676 0%, #7020A0 50%, #8a2ec7 100%);
+                padding: 3rem 0;
+            }
+
+            .why-card {
+                /* Améliorer la visibilité sur mobile */
+                background: rgba(255, 255, 255, 0.25);
+                margin-bottom: 1rem;
+                padding: 2rem 1.5rem;
+            }
+
+            .interactions-section {
+                /* Éliminer tout espace blanc */
+                padding: 3rem 0;
+                margin: 0;
+            }
+
+            .interactions-buttons {
+                padding: 0 1rem;
+            }
+
+            .interaction-btn {
+                padding: 1.2rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .logo-welco {
+                font-size: 1.2rem;
+                letter-spacing: 1px;
+            }
+
+            .logo-laverie {
+                font-size: 1.5rem;
+                letter-spacing: 2px;
+            }
+
+            .logo-img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .hero {
+                min-height: 450px;
+                padding: 2rem 0.5rem;
+            }
+
+            .hero h1 {
+                font-size: 1.6rem;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+            }
+
+            .section-title {
+                font-size: 1.7rem;
+            }
+
+            .why-us-section {
+                padding: 2.5rem 0;
+            }
+
+            .why-card {
+                padding: 1.8rem 1.2rem;
+            }
+
+            .why-icon {
+                font-size: 2.5rem;
+            }
+
+            .why-card h3 {
+                font-size: 1.3rem;
+            }
+
+            .why-card p {
+                font-size: 0.95rem;
+            }
+
+            .btn-icon {
+                font-size: 1.3rem;
+            }
+
+            .interaction-btn {
+                flex-direction: row;
+                gap: 0.8rem;
+                padding: 1rem 1.2rem;
+                font-size: 0.95rem;
+            }
+
+            .footer-section h3 {
+                font-size: 1.3rem;
+            }
+
+            .footer-section h4 {
+                font-size: 1.1rem;
+            }
+
+            .footer-section p {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Très petits écrans */
+        @media (max-width: 360px) {
+            .logo-welco {
+                font-size: 1rem;
+            }
+
+            .logo-laverie {
+                font-size: 1.3rem;
+            }
+
+            .logo-img {
+                width: 45px;
+                height: 45px;
+            }
+
+            .hero h1 {
+                font-size: 1.4rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-img">
+                    <img src="en_tête.png" alt="Nelco Laverie Logo">
+                </div>
+                <div class="logo-text">
+                    <span class="logo-welco">NELCO</span>
+                    <span class="logo-laverie">LAVERIE</span>
+                </div>
+            </div>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html" class="active">Accueil</a></li>
+                    <li><a href="voir_tarifs.php">Voir nos tarifs</a></li>
+                    <li><a href="#offres">Offres</a></li>
+                    <li><a href="testht.php">Passer commande</a></li>
+                    <li><a href="comments.php">Commentaires</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <button class="mobile-menu-toggle" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="accueil">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>Bienvenue chez NELCO LAVERIE</h1>
+            <p class="hero-subtitle">Des services flexibles, rapides et soignés pensés pour s'adapter à vos besoins et à votre budget</p>
+            <div class="hero-buttons">
+                <a href="voir_tarifs.php" class="btn btn-primary">Consulter nos tarifs</a>
+                <a href="testht.php" class="btn btn-secondary">Passer commande</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Horaires & Localisation -->
+    <section class="info-section">
+        <div class="container">
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Horaires d'ouverture</h3>
+                    <div class="info-details">
+                        <p><strong>Tous les jours</strong><br>9h00 - 21h00</p>
+                        <p class="quick-service">⚡ Votre linge prêt en 24h max</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </div>
+                    <h3>Notre localisation</h3>
+                    <div class="info-details">
+                        <p><strong>Godomey PK14</strong><br>Von Station Ewell<br>Cotonou, Bénin</p>
+                        <p class="phone">📱 +229 01 94 19 43 95</p>
+                        <p class="social">📘 NELCOLAVERIE</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section class="services-section" id="services">
+        <div class="container">
+            <h2 class="section-title">Nos Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
+                    </div>
+                    <h3>Lavage & Séchage</h3>
+                    <p>Machines performantes pour un linge propre et sec en un temps record</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3l18 18M3 3v18l6-6M21 21V3l-6 6"></path>
+                        </svg>
+                    </div>
+                    <h3>Repassage</h3>
+                    <p>Service de repassage professionnel pour un rendu impeccable</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Pressing</h3>
+                    <p>Service pressing complet pour vos vêtements délicats</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                            <rect x="2" y="9" width="4" height="12"></rect>
+                            <circle cx="4" cy="4" r="2"></circle>
+                        </svg>
+                    </div>
+                    <h3>Collecte & Livraison</h3>
+                    <p>Service de collecte et livraison à domicile pour votre confort</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pourquoi nous choisir -->
+    <section class="why-us-section">
+        <div class="container">
+            <h2 class="section-title">Pourquoi nous choisir ?</h2>
+            <div class="why-us-grid">
+                <div class="why-card">
+                    <div class="why-icon">⚡</div>
+                    <h3>Rapidité</h3>
+                    <p>Votre linge prêt en 24h maximum</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">✨</div>
+                    <h3>Qualité</h3>
+                    <p>Équipements modernes et service professionnel</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">💰</div>
+                    <h3>Prix compétitifs</h3>
+                    <p>Tarifs économiques et transparents</p>
+                </div>
+                <div class="why-card">
+                    <div class="why-icon">🎯</div>
+                    <h3>Flexibilité</h3>
+                    <p>Services adaptés à vos besoins et votre budget</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactions -->
+    <section class="interactions-section" id="offres">
+        <div class="container">
+            <div class="interactions-buttons">
+                <a href="comments.php" class="interaction-btn">
+                    <span class="btn-icon">💬</span>
+                    <span class="btn-text">Commenter et voir les commentaires</span>
+                </a>
+                <a href="#services" class="interaction-btn">
+                    <span class="btn-icon">🔧</span>
+                    <span class="btn-text">Découvrir nos autres services</span>
+                </a>
+                <a href="https://wa.me/2290194194395?text=Bonjour%20je%20veux%20plus%20d'informations" target="_blank" class="interaction-btn">
+                    <span class="btn-icon">✉️</span>
+                    <span class="btn-text">Nous contacter</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Nelco Laverie</h3>
+                    <p>Votre partenaire de confiance pour l'entretien de votre linge</p>
+                    <p class="footer-slogan">Des services flexibles, rapides et soignés</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Adresse</h4>
+                    <p>Godomey PK14<br>Von Station Ewell<br>Cotonou, Bénin</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Horaires</h4>
+                    <p>Tous les jours: 9h00 - 21h00</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>📱 +229 01 94 19 43 95<br>📘 NELCOLAVERIE<br>✉️ contact@nelcolaverie.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nelco Laverie – Tous droits réservés</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const nav = document.querySelector('.nav');
+        
+        mobileMenuToggle.addEventListener('click', () => {
+            nav.classList.toggle('active');
+            mobileMenuToggle.classList.toggle('active');
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    nav.classList.remove('active');
+                    mobileMenuToggle.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

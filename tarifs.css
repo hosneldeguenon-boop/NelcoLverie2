@@ -1,0 +1,379 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===== HEADER STYLES (identiques à index.html) ===== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #4e1676 0%, #7020A0 50%, #8a2ec7 100%);
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 20px;
+    position: relative;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-img {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: white;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.logo-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.logo-welco {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 2px;
+}
+
+.logo-laverie {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 3px;
+    margin-top: -5px;
+}
+
+.nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid transparent;
+}
+
+.nav a:hover,
+.nav a.active {
+    color: #ffd700;
+    border-bottom-color: #ffd700;
+}
+
+.mobile-menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.mobile-menu-toggle span {
+    width: 30px;
+    height: 3px;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* ===== SECTION TARIFS ===== */
+.tarifs-section {
+    padding: 3rem 0;
+    min-height: calc(100vh - 200px);
+}
+
+.note-box {
+    max-width: 90%;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border: 3px solid #003366;
+    border-radius: 12px;
+    text-align: center;
+    clear: both;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== TITRES ===== */
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    margin: 3rem 0 1.5rem;
+    font-weight: 700;
+    color: #0066cc;
+}
+
+/* ===== TABLES ANIMEES ===== */
+.table-anim {
+    max-width: 900px;
+    margin: 0 auto 3rem;
+    overflow: hidden;
+    animation: fadeIn 0.8s ease forwards;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 25px rgba(0, 51, 102, 0.15);
+    transition: transform 0.3s ease;
+}
+
+table:hover {
+    transform: translateY(-6px);
+}
+
+th {
+    background: #003366;
+    color: white;
+    padding: 1rem;
+    font-size: 1.1rem;
+}
+
+td {
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover {
+    background: #e6f0ff;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== BUTTONS ===== */
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 3rem 0;
+    padding-bottom: 3rem;
+}
+
+.btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-home {
+    background: linear-gradient(135deg, #4e1676 0%, #7020A0 50%, #8a2ec7 100%);
+    color: white;
+    border: 2px solid transparent;
+}
+
+.btn-home:hover {
+    background: linear-gradient(135deg, #8a2ec7 0%, #7020A0 50%, #4e1676 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(78, 22, 118, 0.4);
+}
+
+.btn-order {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #0066cc;
+    border: 2px solid transparent;
+}
+
+.btn-order:hover {
+    background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+}
+
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: flex;
+    }
+
+    .header .container {
+        flex-wrap: wrap;
+    }
+
+    .logo {
+        gap: 0.5rem;
+    }
+
+    .logo-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .nav {
+        order: 3;
+        width: 100%;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .nav.active {
+        max-height: 500px;
+    }
+
+    .nav ul {
+        flex-direction: column;
+        gap: 0;
+        padding: 1rem 0;
+    }
+
+    .nav li {
+        width: 100%;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .nav a {
+        display: block;
+        padding: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.7rem;
+    }
+
+    th, td {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+    }
+
+    .btn {
+        width: 90%;
+        max-width: 350px;
+        justify-content: center;
+    }
+
+    .tarifs-section {
+        padding: 2rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-welco {
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+    }
+
+    .logo-laverie {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+
+    .logo-img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    th, td {
+        font-size: 0.85rem;
+        padding: 0.6rem;
+    }
+
+    .btn {
+        font-size: 1rem;
+        padding: 0.9rem 2rem;
+    }
+
+    .btn-icon {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo-welco {
+        font-size: 1rem;
+    }
+
+    .logo-laverie {
+        font-size: 1.3rem;
+    }
+
+    .logo-img {
+        width: 45px;
+        height: 45px;
+    }
+}

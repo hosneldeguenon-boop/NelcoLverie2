@@ -1,0 +1,326 @@
+/* ============================================
+   STYLES RESPONSIFS POUR COMMANDES.PHP
+   ============================================ */
+
+/* Container principal */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    font-size: 28px;
+    color: #333;
+}
+
+/* Section Protocole */
+.protocole {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.protocole h2 {
+    font-size: 24px;
+    color: #3b82f6;
+    margin-bottom: 20px;
+}
+
+.protocole-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.protocole-section h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.protocole-section h4 {
+    font-size: 16px;
+    color: #555;
+    margin: 15px 0 10px;
+}
+
+.protocole-section ul {
+    list-style-position: inside;
+    padding-left: 0;
+}
+
+.protocole-section li {
+    padding: 5px 0;
+    color: #666;
+}
+
+.sous-section {
+    margin: 15px 0;
+    padding-left: 20px;
+    border-left: 3px solid #3b82f6;
+}
+
+/* Formulaire */
+#commandeForm {
+    background: white;
+}
+
+.form-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.form-section h2 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3b82f6;
+}
+
+.instruction {
+    background: #e3f2fd;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #1565c0;
+}
+
+/* Groupes de tas */
+.tas-group {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.tas-group h3 {
+    font-size: 18px;
+    color: #3b82f6;
+    margin-bottom: 15px;
+}
+
+.sous-tas-group {
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.sous-tas-group h4 {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.groupe-final {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.groupe-final label {
+    font-size: 14px;
+    color: #666;
+}
+
+.groupe-final input {
+    width: 100px;
+    padding: 8px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Radio buttons */
+.radio-group {
+    display: grid;
+    gap: 10px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.radio-option:hover {
+    border-color: #3b82f6;
+    background: #f0f9ff;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Boutons d'action */
+.form-actions {
+    text-align: center;
+    padding: 30px 0;
+}
+
+.btn-principal {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-principal:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+}
+
+.required {
+    color: #ef4444;
+}
+
+/* ============================================
+   RESPONSIVE MOBILE (max-width: 768px)
+   ============================================ */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 22px;
+    }
+
+    .protocole {
+        padding: 20px 15px;
+    }
+
+    .protocole h2 {
+        font-size: 20px;
+    }
+
+    .protocole-section {
+        padding: 15px;
+    }
+
+    .protocole-section h3 {
+        font-size: 16px;
+    }
+
+    .protocole-section h4 {
+        font-size: 14px;
+    }
+
+    .sous-section {
+        padding-left: 10px;
+    }
+
+    .form-section {
+        padding: 20px 15px;
+    }
+
+    .form-section h2 {
+        font-size: 18px;
+    }
+
+    .tas-group {
+        padding: 15px;
+    }
+
+    .sous-tas-group {
+        padding: 12px;
+    }
+
+    .groupe-final {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .groupe-final input {
+        width: 100%;
+    }
+
+    .btn-principal {
+        width: 100%;
+        padding: 15px 20px;
+    }
+
+    /* Amélioration zones tactiles mobiles */
+    .radio-option {
+        min-height: 50px;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"],
+    select {
+        min-height: 44px;
+        font-size: 16px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE TABLETTE (768px - 1024px)
+   ============================================ */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding: 20px 30px;
+    }
+
+    .groupe-final {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* ============================================
+   ORIENTATION LANDSCAPE SUR MOBILE
+   ============================================ */
+@media (max-width: 768px) and (orientation: landscape) {
+    .protocole {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .form-section {
+        padding: 15px;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .btn-principal {
+        display: none;
+    }
+
+    .protocole {
+        page-break-inside: avoid;
+    }
+
+    .form-section {
+        page-break-inside: avoid;
+    }
+}

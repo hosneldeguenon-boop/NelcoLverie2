@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+html, body {
+    height: 100%;
+}
+
+body{
+    /* image de fond : vérifie que img1.png est dans le même dossier que ton fichier HTML */
+    background-image: url('img1.png');
+    background-color: #dceffb; /* fallback si l'image ne charge pas */
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Section légèrement translucide pour rendre le texte blanc lisible */
+section{
+    background-color: rgba(0,0,0,0.25); /* fond semi-transparent foncé */
+    border: 2px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    padding: 30px;
+    width: 420px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Titre */
+section h1{
+    font-size: 30px;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+/* Input box */
+.input-box{
+    width: 100%;
+    margin-bottom: 20px;
+    position: relative;
+}
+.input-box input{
+    width: 100%;
+    padding: 15px 45px 15px 20px; /* espace pour l'icône à droite */
+    border-radius: 25px;
+    outline: none;
+    background-color: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 14px;
+}
+
+/* Placeholder visible en blanc cassé */
+.input-box input::placeholder{
+    color: rgba(255,255,255,0.85);
+}
+
+/* Icône à droite */
+.input-box i{
+    position: absolute;
+    transform: translateY(-50%);
+    right: 20px; /* corrigé : px en minuscule */
+    top: 50%;
+    color: #fff;
+    font-size: 16px;
+}
+
+/* Checkbox et lien */
+.remember_forgot{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color:#fff;
+    margin-bottom: 25px;
+}
+.remember_forgot label input[type="checkbox"]{
+    margin-right: 8px;
+}
+
+/* Liens */
+.remember_forgot a, .register-link a{
+    color: #fff;
+    text-decoration: none;
+    transition: 0.25s;
+    font-weight: 600;
+}
+.remember_forgot a:hover, .register-link a:hover{
+    text-decoration: underline;
+    opacity: 0.9;
+}
+
+/* Bouton plus visible */
+.login-btn{
+    width: 100%;
+    padding: 12px;
+    border-radius: 25px;
+    outline: none;
+    border: 0;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(90deg,#3b82f6,#60a5fa);
+    color: #fff;
+    transition: 0.25s;
+    box-shadow: 0 6px 18px rgba(96,165,250,0.25);
+}
+.login-btn:hover{
+     transform: translateY(-2px);
+     box-shadow: 0 10px 22px rgba(96,165,250,0.35);
+}
+
+/* Lien d'inscription */
+.register-link{
+    text-align: center;
+    margin-top: 18px;
+    color: #fff;
+    font-size: 14px;
+}
+
