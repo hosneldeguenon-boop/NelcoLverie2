@@ -1,5 +1,5 @@
 /* ============================================
-   PROGRESSIVE FORM STYLES
+   PROGRESSIVE FORM STYLES - VERSION AMÉLIORÉE
    ============================================ */
 
 /* BARRE DE PROGRESSION */
@@ -15,7 +15,7 @@
     height: 8px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 10px;
-    width: 20%;
+    width: 11%;
     transition: width 0.4s ease;
 }
 
@@ -25,41 +25,6 @@
     font-weight: 600;
     color: #667eea;
     font-size: 0.95em;
-}
-
-/* PROTOCOLE TOGGLE */
-.protocole-toggle {
-    width: 100%;
-    background: white;
-    border: 2px solid #667eea;
-    padding: 15px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.1em;
-    font-weight: 600;
-    color: #667eea;
-    transition: all 0.3s;
-}
-
-.protocole-toggle:hover {
-    background: #f0f4ff;
-    transform: translateY(-2px);
-}
-
-.toggle-icon {
-    transition: transform 0.3s;
-}
-
-.protocole-toggle.active .toggle-icon {
-    transform: rotate(180deg);
-}
-
-.protocole-content {
-    margin-top: 15px;
-    animation: slideDown 0.3s ease;
 }
 
 /* STEP SECTIONS */
@@ -81,17 +46,6 @@
     to {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-    }
-    to {
-        opacity: 1;
-        max-height: 2000px;
     }
 }
 
@@ -211,37 +165,48 @@
     font-size: 1.1em;
 }
 
-/* TEMPERATURE GRID */
-.temperature-grid {
+/* ============================================
+   TEMPÉRATURE BUTTONS - NOUVEAU DESIGN
+   ============================================ */
+.temperature-buttons {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
 }
 
-.temp-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.temp-item label {
-    font-size: 0.9em;
-    margin-bottom: 8px;
-    color: #555;
-    font-weight: 500;
-}
-
-.temp-item input {
-    padding: 10px;
+.temp-btn {
+    background: white;
     border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1em;
-    transition: border-color 0.3s;
+    border-radius: 10px;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 }
 
-.temp-item input:focus {
-    outline: none;
+.temp-btn:hover {
     border-color: #667eea;
     background: #f0f4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+}
+
+.temp-btn.active {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.temp-btn:active {
+    transform: translateY(0);
 }
 
 /* HELP TEXT */
@@ -289,6 +254,55 @@
     margin-left: auto;
 }
 
+/* RADIO OPTIONS STYLING */
+.radio-group {
+    display: grid;
+    gap: 10px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.radio-option:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 12px;
+    margin-top: 2px;
+    width: auto;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked {
+    accent-color: #667eea;
+}
+
+.radio-option label {
+    cursor: pointer;
+    flex: 1;
+    margin-bottom: 0 !important;
+}
+
+/* INSTRUCTION BOX */
+.instruction {
+    background: #d1ecf1;
+    border-left: 4px solid #0c5460;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    color: #0c5460;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .linge-type-selector {
@@ -299,8 +313,8 @@
         grid-template-columns: 1fr;
     }
 
-    .temperature-grid {
-        grid-template-columns: 1fr;
+    .temperature-buttons {
+        grid-template-columns: 1fr 1fr;
     }
 
     .form-navigation {
@@ -335,5 +349,14 @@
 
     .poids-group {
         padding: 15px;
+    }
+
+    .temperature-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .temp-btn {
+        padding: 10px;
+        font-size: 0.9em;
     }
 }

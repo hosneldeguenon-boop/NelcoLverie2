@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation - Commande à blanc</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #856404;
+        }
+
+        .warning-box h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .warning-box p {
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="font-size: 60px; margin-bottom: 20px;">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <h1>Confirmation de commande à blanc</h1>
+            <p>Vérifiez vos informations avant de valider</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2><i class="fas fa-user"></i> Informations du client</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Nom du client</div>
+                        <div class="info-value" id="confirmNom">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Téléphone</div>
+                        <div class="info-value" id="confirmTel">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-map-marker-alt"></i> Adresses</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Adresse de collecte</div>
+                        <div class="info-value" id="confirmAdresseCollecte">-</div>
+                        <div class="info-label" style="margin-top: 8px;">Description</div>
+                        <div class="info-value" id="confirmDescCollecte" style="font-size: 13px; font-weight: 400;">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Adresse de livraison</div>
+                        <div class="info-value" id="confirmAdresseLivraison">-</div>
+                        <div class="info-label" style="margin-top: 8px;">Description</div>
+                        <div class="info-value" id="confirmDescLivraison" style="font-size: 13px; font-weight: 400;">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2><i class="fas fa-calendar-alt"></i> Dates et heures</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Date et heure de collecte</div>
+                        <div class="info-value" id="confirmDateHeureCollecte">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Date et heure de livraison</div>
+                        <div class="info-value" id="confirmDateHeureLivraison">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3><i class="fas fa-info-circle"></i> Fonctionnement de la commande à blanc</h3>
+                <p>
+                    <strong>La laverie vous contactera le jour de la collecte</strong> pour vous indiquer le prix de la collecte, 
+                    puis passera prendre votre linge à l'heure convenue.
+                </p>
+                <p>
+                    <strong>Elle vous recontactera ensuite</strong> pour vous donner le prix du lavage et, si vous le souhaitez, 
+                    celui de la livraison.
+                </p>
+                <p>
+                    <strong>Le paiement se fera au numéro qui vous sera communiqué</strong> afin de récupérer votre linge propre.
+                </p>
+            </div>
+
+            <div class="btn-container">
+                <button class="btn btn-secondary" id="btnRetour">
+                    <i class="fas fa-arrow-left"></i> Modifier mes informations
+                </button>
+                <button class="btn btn-primary" id="btnConfirmer">
+                    <i class="fas fa-check"></i> Confirmer la commande
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Récupérer les données de sessionStorage
+        const commandeData = JSON.parse(sessionStorage.getItem('commandeBlancData') || '{}');
+
+        // Afficher les données
+        document.getElementById('confirmNom').textContent = commandeData.nomClient || '-';
+        document.getElementById('confirmTel').textContent = commandeData.telephone || '-';
+        document.getElementById('confirmAdresseCollecte').textContent = commandeData.adresseCollecte || '-';
+        document.getElementById('confirmDescCollecte').textContent = commandeData.descriptionCollecte || 'Non renseignée';
+        document.getElementById('confirmAdresseLivraison').textContent = commandeData.adresseLivraison || '-';
+        document.getElementById('confirmDescLivraison').textContent = commandeData.descriptionLivraison || 'Non renseignée';
+        
+        const dateCollecte = commandeData.dateCollecte ? 
+            new Date(commandeData.dateCollecte + 'T' + commandeData.heureCollecte).toLocaleString('fr-FR') : '-';
+        const dateLivraison = commandeData.dateLivraison ? 
+            new Date(commandeData.dateLivraison + 'T' + commandeData.heureLivraison).toLocaleString('fr-FR') : '-';
+        
+        document.getElementById('confirmDateHeureCollecte').textContent = dateCollecte;
+        document.getElementById('confirmDateHeureLivraison').textContent = dateLivraison;
+
+        // Bouton retour
+        document.getElementById('btnRetour').addEventListener('click', function() {
+            window.history.back();
+        });
+
+        // Bouton confirmer
+        document.getElementById('btnConfirmer').addEventListener('click', function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+
+            // Préparer les données à envoyer
+            const dataToSend = {
+                typeCommande: 'commande_blanc',
+                nomClient: commandeData.nomClient,
+                telephone: commandeData.telephone,
+                adresseCollecte: commandeData.adresseCollecte,
+                descriptionCollecte: commandeData.descriptionCollecte || '',
+                adresseLivraison: commandeData.adresseLivraison,
+                descriptionLivraison: commandeData.descriptionLivraison || '',
+                dateCollecte: commandeData.dateCollecte,
+                heureCollecte: commandeData.heureCollecte,
+                dateLivraison: commandeData.dateLivraison,
+                heureLivraison: commandeData.heureLivraison
+            };
+
+            // Envoyer au serveur
+            fetch('process_commande_blanc.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToSend)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Stocker l'ID de commande et rediriger
+                    sessionStorage.setItem('commandeBlancId', data.orderId);
+                    sessionStorage.setItem('commandeBlancNumber', data.orderNumber);
+                    window.location.href = 'succes_commande_blanc.html';
+                } else {
+                    alert('Erreur : ' + data.message);
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-check"></i> Confirmer la commande';
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue lors de l\'enregistrement de la commande.');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-check"></i> Confirmer la commande';
+            });
+        });
+    </script>
+</body>
+</html>

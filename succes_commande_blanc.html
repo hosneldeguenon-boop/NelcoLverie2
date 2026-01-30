@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commande enregistrée - Nelco Laverie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .order-number {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .order-number .label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .order-number .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .info-box p {
+            line-height: 1.8;
+            color: #495057;
+            margin-bottom: 12px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .info-box li {
+            line-height: 1.8;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 40px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .order-number .value {
+                font-size: 22px;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .btn-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Commande enregistrée !</h1>
+            <p>Votre commande à blanc a été enregistrée avec succès</p>
+        </div>
+
+        <div class="content">
+            <div class="order-number">
+                <div class="label">Numéro de référence</div>
+                <div class="value" id="orderNumber">-</div>
+            </div>
+
+            <div class="info-box">
+                <h3><i class="fas fa-clipboard-list"></i> Prochaines étapes</h3>
+                <p><strong>Voici comment se déroulera votre commande :</strong></p>
+                <ul>
+                    <li>
+                        <strong>Avant la collecte :</strong> La laverie vous contactera pour vous indiquer le prix de la collecte.
+                    </li>
+                    <li>
+                        <strong>Collecte :</strong> Notre équipe passera prendre votre linge à l'heure convenue.
+                    </li>
+                    <li>
+                        <strong>Pesée et tarification :</strong> Nous pèserons votre linge et vous recontacterons pour vous communiquer le prix du lavage.
+                    </li>
+                    <li>
+                        <strong>Livraison (optionnelle) :</strong> Si vous le souhaitez, nous vous indiquerons également le prix de la livraison.
+                    </li>
+                    <li>
+                        <strong>Paiement :</strong> Le paiement se fera au numéro qui vous sera communiqué pour récupérer votre linge propre.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="info-box" style="border-left-color: #ffc107; background: #fff3cd;">
+                <h3 style="color: #856404;">
+                    <i class="fas fa-phone"></i> Restez joignable
+                </h3>
+                <p style="color: #856404;">
+                    Assurez-vous que votre téléphone est allumé et accessible afin que nous puissions vous joindre facilement.
+                </p>
+            </div>
+
+            <div class="btn-container">
+                <a href="index.html" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Retour à l'accueil
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Récupérer et afficher le numéro de commande
+        const orderNumber = sessionStorage.getItem('commandeBlancNumber');
+        if (orderNumber) {
+            document.getElementById('orderNumber').textContent = orderNumber;
+        } else {
+            document.getElementById('orderNumber').textContent = 'N/A';
+        }
+
+        // Nettoyer le sessionStorage
+        sessionStorage.removeItem('commandeBlancData');
+        sessionStorage.removeItem('commandeBlancId');
+    </script>
+</body>
+</html>

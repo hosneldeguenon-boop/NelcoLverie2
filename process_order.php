@@ -1,7 +1,7 @@
 <?php
 /**
- * ✅ TRAITEMENT COMMANDES - CYCLE FIDÉLITÉ 11 LAVAGES
- * Correction : Lit depuis points_counter, calcule tout côté serveur
+ * ✅ TRAITEMENT COMMANDES COMPLÈTES - VERSION MISE À JOUR
+ * Gère les nouvelles fonctionnalités : heures, descriptions, repassage optionnel
  */
 
 session_start();
@@ -25,9 +25,9 @@ try {
     }
     
     $requiredFields = [
-        'nomClient', 'telephone', 'adresseCollecte', 'dateCollecte',
-        'communeCollecte', 'adresseLivraison', 'dateLivraison',
-        'communeLivraison', 'paiement', 'poids'
+        'nomClient', 'telephone', 'adresseCollecte', 'adresseLivraison',
+        'dateCollecte', 'heureCollecte', 'dateLivraison', 'heureLivraison',
+        'poidsTotal', 'poids', 'repassage', 'paiement'
     ];
     
     foreach ($requiredFields as $field) {
@@ -40,7 +40,7 @@ try {
     $conn = getDBConnection();
     $conn->beginTransaction();
     
-    // ✅ Récupérer utilisateur avec points_counter
+    // Récupérer utilisateur avec points_counter
     $stmt = $conn->prepare("
         SELECT customer_code, points_counter 
         FROM users 
@@ -54,7 +54,6 @@ try {
         throw new Exception('Utilisateur introuvable');
     }
     
-    // ✅ points_counter = nombre de lavages
     $ancienNombreLavage = intval($user['points_counter']);
     
     // ============================================
@@ -75,14 +74,12 @@ try {
             ['min' => 0, 'max' => 6, 'prix' => 3500],
             ['min' => 6, 'max' => 8, 'prix' => 4000],
             ['min' => 8, 'max' => 10, 'prix' => 7000]
+        ],
+        'choix' => [  // Au choix = tarif chaud
+            ['min' => 0, 'max' => 6, 'prix' => 3500],
+            ['min' => 6, 'max' => 8, 'prix' => 4000],
+            ['min' => 8, 'max' => 10, 'prix' => 7000]
         ]
-    ];
-    
-    $tarifsCommunePrix = [
-        'godomey' => 500,
-        'cotonou' => 1000,
-        'calavi' => 800,
-        'autres' => 1500
     ];
     
     // ============================================
@@ -189,10 +186,8 @@ try {
     // TRAITEMENT DES POIDS
     // ============================================
     $poidsData = $data['poids'];
-    
     $categoriesVolumineux = ['a1', 'b1', 'c1'];
     $categoriesOrdinaire = ['a2', 'b2', 'c2'];
-    $temperatures = ['chaud', 'tiede', 'froid'];
     
     $prixLavageTotal = 0;
     $lavTotal = 0;
@@ -203,13 +198,9 @@ try {
     
     // VOLUMINEUX
     foreach ($categoriesVolumineux as $cat) {
-        foreach ($temperatures as $temp) {
+        foreach (['chaud', 'tiede', 'froid', 'choix'] as $temp) {
             $key = "{$cat}_{$temp}";
             $poids = floatval($poidsData[$key] ?? 0);
-            
-            if ($poids < 0 || $poids > 1000) {
-                throw new Exception("Poids invalide pour $key");
-            }
             
             if ($poids > 0) {
                 $result = calculerPrixLavageVolumineux($poids, $temp, $tarifs);
@@ -232,13 +223,9 @@ try {
     
     // ORDINAIRE
     foreach ($categoriesOrdinaire as $cat) {
-        foreach ($temperatures as $temp) {
+        foreach (['chaud', 'tiede', 'froid', 'choix'] as $temp) {
             $key = "{$cat}_{$temp}";
             $poids = floatval($poidsData[$key] ?? 0);
-            
-            if ($poids < 0 || $poids > 1000) {
-                throw new Exception("Poids invalide pour $key");
-            }
             
             if ($poids > 0) {
                 $result = calculerPrixLavageOrdinaire($poids, $temp, $tarifs);
@@ -264,7 +251,7 @@ try {
     }
     
     // ============================================
-    // ✅ LOGIQUE FIDÉLITÉ - CYCLE DE 11 LAVAGES
+    // LOGIQUE FIDÉLITÉ - CYCLE DE 11 LAVAGES
     // ============================================
     $totalLavages = $ancienNombreLavage + $lavTotal;
     $nombreReductions = floor($totalLavages / 11);
@@ -279,11 +266,15 @@ try {
     // ============================================
     $prixSechage = calculerPrixSechage($poidsGrandTotal);
     $prixPliage = calculerPrixPliage($poidsGrandTotal);
-    $prixRepassage = calculerPrixRepassage($poidsVolumineuxTotal, $poidsOrdinaireTotal);
     
-    $commune1 = $data['communeCollecte'];
-    $commune2 = $data['communeLivraison'];
-    $prixCollecte = ($tarifsCommunePrix[$commune1] ?? 0) + ($tarifsCommunePrix[$commune2] ?? 0);
+    // Repassage : calculer seulement si demandé
+    $prixRepassage = 0;
+    if ($data['repassage'] === 'oui') {
+        $prixRepassage = calculerPrixRepassage($poidsVolumineuxTotal, $poidsOrdinaireTotal);
+    }
+    
+    // Plus de prix de collecte/livraison (commune supprimée)
+    $prixCollecte = 0;
     
     $totalCommande = $prixLavageFinal + $prixSechage + $prixPliage + $prixRepassage + $prixCollecte;
     
@@ -298,14 +289,23 @@ try {
     $orderDetails = [
         'nomClientSaisi' => cleanInput($data['nomClient']),
         'telephoneSaisi' => cleanInput($data['telephone']),
+        'adresseCollecte' => cleanInput($data['adresseCollecte']),
+        'descriptionCollecte' => cleanInput($data['descriptionCollecte'] ?? ''),
+        'adresseLivraison' => cleanInput($data['adresseLivraison']),
+        'descriptionLivraison' => cleanInput($data['descriptionLivraison'] ?? ''),
+        'dateCollecte' => $data['dateCollecte'],
+        'heureCollecte' => $data['heureCollecte'],
+        'dateLivraison' => $data['dateLivraison'],
+        'heureLivraison' => $data['heureLivraison'],
         'poids' => $poidsData,
+        'poidsTotal' => $data['poidsTotal'],
         'detailsPoidsComplets' => $detailsPoids,
-        'communeCollecte' => $commune1,
-        'communeLivraison' => $commune2,
         'prixLavageBrut' => $prixLavageTotal,
+        'prixLavage' => $prixLavageFinal,
         'prixSechage' => $prixSechage,
         'prixPliage' => $prixPliage,
         'prixRepassage' => $prixRepassage,
+        'repassageDemande' => $data['repassage'],
         'prixCollecte' => $prixCollecte,
         'reductionFidelite' => $reductionFidelite,
         'moyenPaiement' => cleanInput($data['paiement']),
@@ -349,14 +349,28 @@ try {
         )
     ");
     
+    // Combiner date et heure
+    $pickupDateTime = $data['dateCollecte'] . ' ' . $data['heureCollecte'] . ':00';
+    $deliveryDateTime = $data['dateLivraison'] . ' ' . $data['heureLivraison'] . ':00';
+    
+    $pickupAddress = cleanInput($data['adresseCollecte']);
+    if (isset($data['descriptionCollecte']) && $data['descriptionCollecte']) {
+        $pickupAddress .= ' - ' . cleanInput($data['descriptionCollecte']);
+    }
+    
+    $deliveryAddress = cleanInput($data['adresseLivraison']);
+    if (isset($data['descriptionLivraison']) && $data['descriptionLivraison']) {
+        $deliveryAddress .= ' - ' . cleanInput($data['descriptionLivraison']);
+    }
+    
     $stmt->execute([
         $userId,
         $orderNumber,
         $user['customer_code'],
-        cleanInput($data['adresseCollecte']),
-        $data['dateCollecte'],
-        cleanInput($data['adresseLivraison']),
-        $data['dateLivraison'],
+        $pickupAddress,
+        $pickupDateTime,
+        $deliveryAddress,
+        $deliveryDateTime,
         $totalCommande,
         $prixLavageFinal,
         $prixSechage,
@@ -390,7 +404,9 @@ try {
             'nouveauNombreLavage' => $nouveauNombreLavage,
             'reductionFidelite' => $reductionFidelite,
             'prixLavageBrut' => $prixLavageTotal,
-            'prixLavageFinal' => $prixLavageFinal
+            'prixLavageFinal' => $prixLavageFinal,
+            'prixRepassage' => $prixRepassage,
+            'repassageDemande' => $data['repassage']
         ]
     ]);
     

@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle Commande - Nelco Laverie</title>
+    <link rel="stylesheet" href="commandes.css">
+    <link rel="stylesheet" href="progressive-form.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📋 Nouvelle Commande</h1>
+            <p>Suivez les étapes pour passer votre commande</p>
+        </header>
+
+        <!-- BARRE DE PROGRESSION -->
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-text" id="progressText">Étape 1/9</div>
+        </div>
+
+        <form id="commandeForm">
+            <!-- ============================================ -->
+            <!-- ÉTAPE 1 : INFORMATIONS CLIENT -->
+            <!-- ============================================ -->
+            <section class="form-section step-section active" data-step="1">
+                <h2><i class="fas fa-user"></i> Informations du client</h2>
+                
+                <div class="instruction">
+                    <i class="fas fa-info-circle"></i> 
+                    Veuillez renseigner les informations du client pour qui cette commande est effectuée.
+                </div>
+
+                <div class="form-group">
+                    <label for="nomClient">Nom complet du client <span class="required">*</span></label>
+                    <input type="text" id="nomClient" name="nomClient" required 
+                           placeholder="Ex: Jean Dupont">
+                </div>
+
+                <div class="form-group">
+                    <label for="telephone">Téléphone du client <span class="required">*</span></label>
+                    <input type="tel" id="telephone" name="telephone" required 
+                           placeholder="Ex: 97123456">
+                    <small>Format: 8 chiffres ou 11 chiffres (avec indicatif 229)</small>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ÉTAPE 2 : ADRESSES -->
+            <!-- ============================================ -->
+            <section class="form-section step-section" data-step="2">
+                <h2><i class="fas fa-map-marker-alt"></i> Adresses de collecte et livraison</h2>
+
+                <div class="instruction">
+                    <i class="fas fa-info-circle"></i> 
+                    Vous pouvez renseigner une seule adresse, elle sera automatiquement utilisée pour les deux.
+                </div>
+
+                <div class="form-group">
+                    <label for="adresseCollecte">Adresse de collecte</label>
+                    <input type="text" id="adresseCollecte" name="adresseCollecte" 
+                           placeholder="Ex: Rue 123, Quartier XYZ">
+                </div>
+
+                <div class="form-group">
+                    <label for="descriptionCollecte">Description de l'emplacement (optionnel)</label>
+                    <input type="text" id="descriptionCollecte" name="descriptionCollecte" 
+                           placeholder="Ex: Bâtiment B, 2ème étage, porte bleue">
+                    <small>Précisions pour faciliter la collecte</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="adresseLivraison">Adresse de livraison</label>
+                    <input type="text" id="adresseLivraison" name="adresseLivraison" 
+                           placeholder="Ex: Avenue ABC, Zone DEF">
+                </div>
+
+                <div class="form-group">
+                    <label for="descriptionLivraison">Description de l'emplacement (optionnel)</label>
+                    <input type="text" id="descriptionLivraison" name="descriptionLivraison" 
+                           placeholder="Ex: Bâtiment B, 2ème étage, porte bleue">
+                    <small>Précisions pour faciliter la livraison</small>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ÉTAPE 3 : DATES ET HEURES -->
+            <!-- ============================================ -->
+            <section class="form-section step-section" data-step="3">
+                <h2><i class="fas fa-calendar-alt"></i> Dates et heures</h2>
+
+                <div class="instruction">
+                    <i class="fas fa-info-circle"></i> 
+                    Au moins une heure doit être renseignée. L'écart entre collecte et livraison doit être d'au moins 12 heures.
+                </div>
+
+                <div class="form-group">
+                    <label for="dateCollecte">Date de collecte</label>
+                    <input type="date" id="dateCollecte" name="dateCollecte">
+                </div>
+
+                <div class="form-group">
+                    <label for="heureCollecte">Heure de collecte</label>
+                    <input type="time" id="heureCollecte" name="heureCollecte" 
+                           placeholder="HH:MM">
+                    <small>Format 24h (ex: 14:30)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateLivraison">Date de livraison</label>
+                    <input type="date" id="dateLivraison" name="dateLivraison">
+                </div>
+
+                <div class="form-group">
+                    <label for="heureLivraison">Heure de livraison</label>
+                    <input type="time" id="heureLivraison" name="heureLivraison" 
+                           placeholder="HH:MM">
+                    <small>Format 24h (ex: 14:30)</small>
+                </div>
+
+                <div id="heureWarning" class="help-text" style="display:none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    L'écart entre la collecte et la livraison doit être d'au moins 12 heures.
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ÉTAPE 4 : DISPONIBILITÉ DE LA PÈSE -->
+            <!-- ============================================ -->
+            <section class="form-section step-section" data-step="4">
+                <h2><i class="fas fa-balance-scale"></i> Disponibilité de la pèse</h2>
+
+                <div class="instruction">
+                    <i class="fas fa-info-circle"></i> 
+                    Cette information détermine la suite du processus de commande.
+                </div>
+
+                <div class="form-group">
+                    <label>Disposez-vous d'une pèse et êtes-vous prêt à l'utiliser maintenant ? <span class="required">*</span></label>
+                    
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="peseOui" name="disponibilitePese" value="oui" required>
+                            <label for="peseOui">Oui, j'ai une pèse et je suis prêt à peser mon linge</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="peseNon" name="disponibilitePese" value="non">
+                            <label for="peseNon">Non, je n'ai pas de pèse</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OPTIONS SI NON -->
+                <div id="optionsNonPese" style="display:none; margin-top: 20px;">
+                    <div class="form-group">
+                        <label>Que souhaitez-vous faire ? <span class="required">*</span></label>
+                        
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="optionLaverie" name="optionNonPese" value="laverie">
+                                <label for="optionLaverie">
+                                    <strong>Se rendre à la laverie</strong><br>
+                                    <small>Je souhaite me rendre directement à la laverie sise à l'adresse indiquée sur la page d'accueil</small>
+                                </label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="optionCommandeBlanc" name="optionNonPese" value="commande_blanc">
+                                <label for="optionCommandeBlanc">
+                                    <strong>Passer une commande à blanc</strong><br>
+                                    <small>Je souhaite passer une commande à blanc (sans indication de poids)</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="explanationCommandeBlanc" style="display:none; margin-top: 15px;" class="instruction">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Fonctionnement de la commande à blanc :</strong><br>
+                        La laverie vous contactera le jour de la collecte pour vous indiquer le prix de la collecte, 
+                        puis passera prendre votre linge à l'heure convenue.<br>
+                        Elle vous recontactera ensuite pour vous donner le prix du lavage et, si vous le souhaitez, 
+                        celui de la livraison.<br>
+                        Le paiement se fera au numéro qui vous sera communiqué afin de récupérer votre linge propre.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ÉTAPE 5 : PROTOCOLE (SI OUI À LA PÈSE) -->
+            <!-- ============================================ -->
+            <section class="form-section step-section" data-step="5">
+                <h2><i class="fas fa-book"></i> Protocole de commande</h2>
+
+                <div class="instruction">
+                    <i class="fas fa-info-circle"></i> 
+                    Veuillez prendre connaissance du protocole de pesée et de tri avant de continuer.
+                </div>
+
+                <!-- Image du protocole de pesée -->
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="img10.jpg" alt="Protocole de pesée" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                </div>
+
+                <!-- Protocole de tri existant -->
+                <div class="protocole">
+                    <h2>📋 Protocole de Commande</h2>
+                    
+                    <div class="protocole-section">
+                        <h3>🎯 Structure de la Commande</h3>
+                        <p>Votre commande est organisée en <strong>TAS</strong>, puis en <strong>SOUS-TAS</strong>, et enfin en <strong>GROUPES FINAUX</strong>.</p>
+                        
+                        <div class="structure-exemple">
+TAS = VOLUMINEUX ou ORDINAIRE
+│
+├── SOUS-TAS = BLANC, COULEUR, NOIR
+│   │
+│   └── GROUPES FINAUX = A1_chaud, A1_tiede, A1_froid (par température)
+                        </div>
+                    </div>
+
+                    <div class="protocole-section">
+                        <h3>🔢 Étapes de Tri</h3>
+                        
+                        <div class="sous-section">
+                            <h4>1️⃣ Première séparation : TYPE DE LINGE</h4>
+                            <ul>
+                                <li><strong>VOLUMINEUX</strong> : draps, couvertures, grandes serviettes, rideaux</li>
+                                <li><strong>ORDINAIRE</strong> : vêtements classiques, petites serviettes, torchons</li>
+                            </ul>
+                        </div>
+
+                        <div class="sous-section">
+                            <h4>2️⃣ Deuxième séparation : COULEUR</h4>
+                            <p>Pour chaque type (volumineux et ordinaire), séparez en :</p>
+                            <ul>
+                                <li><strong>BLANC</strong> (A) : blanc pur uniquement</li>
+                                <li><strong>COULEUR</strong> (B) : toutes les couleurs (rouge, bleu, vert, etc.)</li>
+                                <li><strong>NOIR</strong> (C) : noir et gris foncé</li>
+                            </ul>
+                        </div>
+
+                        <div class="sous-section">
+                            <h4>3️⃣ Troisième séparation : TEMPÉRATURE</h4>
+                            <p>Pour chaque sous-tas, répartissez selon la température de lavage :</p>
+                            <ul>
+                                <li><strong>CHAUD</strong> 🔥 : linge très sale, taches tenaces</li>
+                                <li><strong>TIÈDE</strong> 🌡️ : linge normalement sale</li>
+                                <li><strong>FROID</strong> ❄️ : linge délicat ou peu sale</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="protocole-section">
+                        <h3>📊 Exemple Complet</h3>
+                        <p>Si vous avez des draps blancs très sales :</p>
+                        <ul>
+                            <li>✅ C'est du <strong>VOLUMINEUX</strong> (draps)</li>
+                            <li>✅ C'est du <strong>BLANC</strong> (A)</li>
+                            <li>✅ Température <strong>CHAUD</strong> (très sales)</li>
+                            <li>➡️ Groupe final : <strong>A1_chaud</strong></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-text">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Astuce :</strong> Préparez vos tas de linge selon ce protocole avant de commencer à saisir les poids.
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ÉTAPE 6 : POIDS TOTAL -->
+            <!-- ============================================ -->
+            <section class="form-section step-section" data-step="6">
+                <h2><i class="fas fa-weight"></i> Poids total du linge</h2>
+
+                <div class="instruction">
+                    <i class="fas fa-info-circle"></i> 
+                    Indiquez d'abord le poids total de tout votre linge. Cela nous permettra de vérifier la cohérence avec les détails.
+                </div>
+
+                <div class="form-group">
+                    <label for="poidsTotal">Poids total de votre linge (kg) <span class="required">*</span></label>
+                    <input type="number" id="poidsTotal" name="poidsTotal" step="0.1" min="0.1" required 
+                           placeholder="Ex: 15.5">
+                    <small>Accepte les décimales (ex: 15.5 kg)</small>
+                </div>
+
+                <div class="help-text">
+                    <i class="fas fa-balance-scale"></i>
+                    <strong>Important :</strong> Pesez tout votre linge ensemble pour obtenir le poids total exact.
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ÉTAPE 7 : POIDS PAR SOUS-TAS + TEMPÉRATURES + REPASSAGE -->
+            <!-- ============================================ -->
+            <section class="form-section step-section" data-step="7">
+                <h2><i class="fas fa-layer-group"></i> Détail des sous-tas de linge</h2>
+
+                <div class="instruction">
+                    <i class="fas fa-info-circle"></i> 
+                    Pour chaque sous-tas, indiquez le poids et sélectionnez la température de lavage.
+                </div>
+
+                <!-- TYPE DE LINGE SELECTOR -->
+                <div class="linge-type-selector">
+                    <div class="linge-type-card" id="btnVolumineux">
+                        <div class="card-icon">🛏️</div>
+                        <div class="card-title">Linge Volumineux</div>
+                        <div class="card-desc">Draps, couvertures, grandes serviettes, rideaux</div>
+                    </div>
+                    <div class="linge-type-card" id="btnOrdinaire">
+                        <div class="card-icon">👕</div>
+                        <div class="card-title">Linge Ordinaire</div>
+                        <div class="card-desc">Vêtements, petites serviettes, torchons</div>
+                    </div>
+                </div>
+
+                <!-- VOLUMINEUX SECTION -->
+                <div id="volumineuxSection" class="linge-category-section" style="display:none;">
+                    <h3 class="category-title">🛏️ Linge Volumineux</h3>
+                    
+                    <p style="margin-bottom: 15px; color: #666;">Sélectionnez les couleurs présentes dans votre linge volumineux :</p>
+                    
+                    <div class="color-selector">
+                        <div class="color-card" data-color="blanc" data-volume="volumineux">
+                            <span class="color-icon">⚪</span>
+                            <span>Blanc</span>
+                        </div>
+                        <div class="color-card" data-color="couleur" data-volume="volumineux">
+                            <span class="color-icon">🎨</span>
+                            <span>Couleur</span>
+                        </div>
+                        <div class="color-card" data-color="noir" data-volume="volumineux">
+                            <span class="color-icon">⚫</span>
+                            <span>Noir</span>
+                        </div>
+                    </div>
+
+                    <!-- BLANC VOLUMINEUX -->
+                    <div id="blancVolumineux" class="poids-group" style="display:none;">
+                        <h4>⚪ Blanc Volumineux</h4>
+                        
+                        <div class="form-group">
+                            <label>Poids (kg)</label>
+                            <input type="number" name="a1_poids" step="0.1" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Température de lavage <span class="required">*</span></label>
+                            <div class="temperature-buttons">
+                                <button type="button" class="temp-btn" data-temp="chaud" data-category="a1">
+                                    🔥 Chaud
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="tiede" data-category="a1">
+                                    🌡️ Tiède
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="froid" data-category="a1">
+                                    ❄️ Froid
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="choix" data-category="a1">
+                                    ⚙️ Au choix
+                                </button>
+                            </div>
+                            <input type="hidden" name="a1_temperature" id="a1_temperature">
+                        </div>
+                    </div>
+
+                    <!-- COULEUR VOLUMINEUX -->
+                    <div id="couleurVolumineux" class="poids-group" style="display:none;">
+                        <h4>🎨 Couleur Volumineux</h4>
+                        
+                        <div class="form-group">
+                            <label>Poids (kg)</label>
+                            <input type="number" name="b1_poids" step="0.1" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Température de lavage <span class="required">*</span></label>
+                            <div class="temperature-buttons">
+                                <button type="button" class="temp-btn" data-temp="chaud" data-category="b1">
+                                    🔥 Chaud
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="tiede" data-category="b1">
+                                    🌡️ Tiède
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="froid" data-category="b1">
+                                    ❄️ Froid
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="choix" data-category="b1">
+                                    ⚙️ Au choix
+                                </button>
+                            </div>
+                            <input type="hidden" name="b1_temperature" id="b1_temperature">
+                        </div>
+                    </div>
+
+                    <!-- NOIR VOLUMINEUX -->
+                    <div id="noirVolumineux" class="poids-group" style="display:none;">
+                        <h4>⚫ Noir Volumineux</h4>
+                        
+                        <div class="form-group">
+                            <label>Poids (kg)</label>
+                            <input type="number" name="c1_poids" step="0.1" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Température de lavage <span class="required">*</span></label>
+                            <div class="temperature-buttons">
+                                <button type="button" class="temp-btn" data-temp="chaud" data-category="c1">
+                                    🔥 Chaud
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="tiede" data-category="c1">
+                                    🌡️ Tiède
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="froid" data-category="c1">
+                                    ❄️ Froid
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="choix" data-category="c1">
+                                    ⚙️ Au choix
+                                </button>
+                            </div>
+                            <input type="hidden" name="c1_temperature" id="c1_temperature">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ORDINAIRE SECTION -->
+                <div id="ordinaireSection" class="linge-category-section" style="display:none;">
+                    <h3 class="category-title">👕 Linge Ordinaire</h3>
+                    
+                    <p style="margin-bottom: 15px; color: #666;">Sélectionnez les couleurs présentes dans votre linge ordinaire :</p>
+                    
+                    <div class="color-selector">
+                        <div class="color-card" data-color="blanc" data-volume="ordinaire">
+                            <span class="color-icon">⚪</span>
+                            <span>Blanc</span>
+                        </div>
+                        <div class="color-card" data-color="couleur" data-volume="ordinaire">
+                            <span class="color-icon">🎨</span>
+                            <span>Couleur</span>
+                        </div>
+                        <div class="color-card" data-color="noir" data-volume="ordinaire">
+                            <span class="color-icon">⚫</span>
+                            <span>Noir</span>
+                        </div>
+                    </div>
+
+                    <!-- BLANC ORDINAIRE -->
+                    <div id="blancOrdinaire" class="poids-group" style="display:none;">
+                        <h4>⚪ Blanc Ordinaire</h4>
+                        
+                        <div class="form-group">
+                            <label>Poids (kg)</label>
+                            <input type="number" name="a2_poids" step="0.1" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Température de lavage <span class="required">*</span></label>
+                            <div class="temperature-buttons">
+                                <button type="button" class="temp-btn" data-temp="chaud" data-category="a2">
+                                    🔥 Chaud
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="tiede" data-category="a2">
+                                    🌡️ Tiède
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="froid" data-category="a2">
+                                    ❄️ Froid
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="choix" data-category="a2">
+                                    ⚙️ Au choix
+                                </button>
+                            </div>
+                            <input type="hidden" name="a2_temperature" id="a2_temperature">
+                        </div>
+                    </div>
+
+                    <!-- COULEUR ORDINAIRE -->
+                    <div id="couleurOrdinaire" class="poids-group" style="display:none;">
+                        <h4>🎨 Couleur Ordinaire</h4>
+                        
+                        <div class="form-group">
+                            <label>Poids (kg)</label>
+                            <input type="number" name="b2_poids" step="0.1" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Température de lavage <span class="required">*</span></label>
+                            <div class="temperature-buttons">
+                                <button type="button" class="temp-btn" data-temp="chaud" data-category="b2">
+                                    🔥 Chaud
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="tiede" data-category="b2">
+                                    🌡️ Tiède
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="froid" data-category="b2">
+                                    ❄️ Froid
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="choix" data-category="b2">
+                                    ⚙️ Au choix
+                                </button>
+                            </div>
+                            <input type="hidden" name="b2_temperature" id="b2_temperature">
+                        </div>
+                    </div>
+
+                    <!-- NOIR ORDINAIRE -->
+                    <div id="noirOrdinaire" class="poids-group" style="display:none;">
+                        <h4>⚫ Noir Ordinaire</h4>
+                        
+                        <div class="form-group">
+                            <label>Poids (kg)</label>
+                            <input type="number" name="c2_poids" step="0.1" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Température de lavage <span class="required">*</span></label>
+                            <div class="temperature-buttons">
+                                <button type="button" class="temp-btn" data-temp="chaud" data-category="c2">
+                                    🔥 Chaud
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="tiede" data-category="c2">
+                                    🌡️ Tiède
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="froid" data-category="c2">
+                                    ❄️ Froid
+                                </button>
+                                <button type="button" class="temp-btn" data-temp="choix" data-category="c2">
+                                    ⚙️ Au choix
+                                </button>
+                            </div>
+                            <input type="hidden" name="c2_temperature" id="c2_temperature">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VALIDATION MESSAGE -->
+                <div id="poidsValidationMessage" class="help-text" style="display:none; background: #f8d7da; border-color: #f5c6cb; color: #721c24;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="poidsValidationText"></span>
+                </div>
+
+                <!-- REPASSAGE -->
+                <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">
+                        <i class="fas fa-tshirt"></i> Service de repassage
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label>Souhaitez-vous faire repasser votre linge ? <span class="required">*</span></label>
+                        
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="repassageOui" name="repassage" value="oui" required>
+                                <label for="repassageOui">Oui, avec repassage</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="repassageNon" name="repassage" value="non">
+                                <label for="repassageNon">Non, sans repassage</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ÉTAPE 8 : RÉCAPITULATIF DES PRIX -->
+            <!-- ============================================ -->
+            <section class="form-section step-section" data-step="8">
+                <h2><i class="fas fa-calculator"></i> Récapitulatif des prix</h2>
+
+                <div class="recap">
+                    <h2>💰 Détail financier</h2>
+                    
+                    <div class="prix-ligne">
+                        <label>Prix lavage</label>
+                        <span id="recapPrixLavage">0 FCFA</span>
+                    </div>
+
+                    <div class="prix-ligne" id="recapReductionContainer" style="display:none;">
+                        <label>🎁 Réduction fidélité</label>
+                        <span id="recapReduction">0 FCFA</span>
+                    </div>
+
+                    <div class="prix-ligne">
+                        <label>Prix séchage</label>
+                        <span id="recapPrixSechage">0 FCFA</span>
+                    </div>
+
+                    <div class="prix-ligne">
+                        <label>Prix pliage</label>
+                        <span id="recapPrixPliage">0 FCFA</span>
+                    </div>
+
+                    <div class="prix-ligne" id="recapRepassageContainer" style="display:none;">
+                        <label>Prix repassage</label>
+                        <span id="recapPrixRepassage">0 FCFA</span>
+                    </div>
+
+                    <div class="prix-ligne total">
+                        <label>TOTAL À PAYER</label>
+                        <span id="recapTotal">0 FCFA</span>
+                    </div>
+                </div>
+
+                <div class="help-text">
+                    <i class="fas fa-info-circle"></i>
+                    Vérifiez attentivement le récapitulatif avant de continuer vers le paiement.
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- ÉTAPE 9 : MOYEN DE PAIEMENT -->
+            <!-- ============================================ -->
+            <section class="form-section step-section" data-step="9">
+                <h2><i class="fas fa-credit-card"></i> Moyen de paiement</h2>
+
+                <div class="instruction">
+                    <i class="fas fa-info-circle"></i> 
+                    Choisissez votre mode de paiement préféré.
+                </div>
+
+                <div class="form-group">
+                    <label>Mode de paiement <span class="required">*</span></label>
+                    
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="paiementLivraison" name="paiement" value="livraison" required>
+                            <label for="paiementLivraison">
+                                <i class="fas fa-hand-holding-usd"></i> Paiement à la livraison
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="paiementMTN" name="paiement" value="mtn">
+                            <label for="paiementMTN">
+                                <i class="fas fa-mobile-alt"></i> MTN Mobile Money
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="paiementMoov" name="paiement" value="moov">
+                            <label for="paiementMoov">
+                                <i class="fas fa-mobile-alt"></i> Moov Money
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="paiementCeltiis" name="paiement" value="celtiis">
+                            <label for="paiementCeltiis">
+                                <i class="fas fa-mobile-alt"></i> Celtiis Money
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NAVIGATION BUTTONS -->
+            <div class="form-navigation">
+                <button type="button" class="btn-nav" id="btnPrev" style="display:none;">
+                    <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <button type="button" class="btn-nav btn-next" id="btnNext">
+                    Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="submit" class="btn-principal" id="btnSubmit" style="display:none;">
+                    <i class="fas fa-check"></i> Valider la commande
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="commandes.js"></script>
+    <script src="progressive-form.js"></script>
+</body>
+</html>
