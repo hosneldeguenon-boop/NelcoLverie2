@@ -132,6 +132,86 @@ select {
     transition: border-color 0.3s;
 }
 
+/* ============================================
+   AMÉLIORATION : STYLE DES CHAMPS D'HEURES
+   ============================================ */
+input[type="time"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 500;
+    color: #333;
+    background: white;
+    background-image: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+input[type="time"]:hover {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+input[type="time"]:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+/* Style du sélecteur d'heure natif */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 6px;
+    padding: 6px;
+    cursor: pointer;
+    filter: brightness(1);
+    transition: all 0.3s ease;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    filter: brightness(1.2);
+    transform: scale(1.1);
+}
+
+input[type="time"]::-webkit-datetime-edit {
+    padding: 0;
+}
+
+input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
+
+input[type="time"]::-webkit-datetime-edit-text {
+    color: #667eea;
+    padding: 0 4px;
+}
+
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field {
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 4px;
+    padding: 4px 6px;
+    color: #333;
+    font-weight: 600;
+}
+
+input[type="time"]::-webkit-datetime-edit-hour-field:focus,
+input[type="time"]::-webkit-datetime-edit-minute-field:focus {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    outline: none;
+}
+
+/* Support Firefox */
+input[type="time"]::-moz-focus-inner {
+    border: 0;
+}
+
 input:focus,
 select:focus {
     outline: none;
@@ -404,6 +484,12 @@ small {
     .prix-ligne.total span {
         font-size: 18px !important;
     }
+
+    /* Style responsive pour les champs d'heures */
+    input[type="time"] {
+        padding: 10px 14px;
+        font-size: 0.95em;
+    }
 }
 
 @media (max-width: 480px) {
@@ -443,5 +529,10 @@ small {
     .btn-principal {
         padding: 12px 30px;
         font-size: 1em;
+    }
+
+    input[type="time"] {
+        padding: 10px 12px;
+        font-size: 0.9em;
     }
 }

@@ -475,7 +475,7 @@ try {
                 <button class="btn btn-secondary" onclick="window.print()">
                     <i class="fas fa-print"></i> Imprimer le récapitulatif
                 </button>
-                <a href="acceuil.php" class="btn btn-primary">
+                <a href="index.html" class="btn btn-primary">
                     <i class="fas fa-home"></i> Retour à l'accueil
                 </a>
             </div>

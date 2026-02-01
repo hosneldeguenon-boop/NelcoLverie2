@@ -237,7 +237,6 @@ TAS = VOLUMINEUX ou ORDINAIRE
                             <ul>
                                 <li><strong>BLANC</strong> (A) : blanc pur uniquement</li>
                                 <li><strong>COULEUR</strong> (B) : toutes les couleurs (rouge, bleu, vert, etc.)</li>
-                                <li><strong>NOIR</strong> (C) : noir et gris foncé</li>
                             </ul>
                         </div>
 
@@ -334,10 +333,6 @@ TAS = VOLUMINEUX ou ORDINAIRE
                             <span class="color-icon">🎨</span>
                             <span>Couleur</span>
                         </div>
-                        <div class="color-card" data-color="noir" data-volume="volumineux">
-                            <span class="color-icon">⚫</span>
-                            <span>Noir</span>
-                        </div>
                     </div>
 
                     <!-- BLANC VOLUMINEUX -->
@@ -398,35 +393,8 @@ TAS = VOLUMINEUX ou ORDINAIRE
                         </div>
                     </div>
 
-                    <!-- NOIR VOLUMINEUX -->
-                    <div id="noirVolumineux" class="poids-group" style="display:none;">
-                        <h4>⚫ Noir Volumineux</h4>
-                        
-                        <div class="form-group">
-                            <label>Poids (kg)</label>
-                            <input type="number" name="c1_poids" step="0.1" min="0" placeholder="0">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Température de lavage <span class="required">*</span></label>
-                            <div class="temperature-buttons">
-                                <button type="button" class="temp-btn" data-temp="chaud" data-category="c1">
-                                    🔥 Chaud
-                                </button>
-                                <button type="button" class="temp-btn" data-temp="tiede" data-category="c1">
-                                    🌡️ Tiède
-                                </button>
-                                <button type="button" class="temp-btn" data-temp="froid" data-category="c1">
-                                    ❄️ Froid
-                                </button>
-                                <button type="button" class="temp-btn" data-temp="choix" data-category="c1">
-                                    ⚙️ Au choix
-                                </button>
-                            </div>
-                            <input type="hidden" name="c1_temperature" id="c1_temperature">
-                        </div>
-                    </div>
                 </div>
+                <!-- Fin volumineuxSection -->
 
                 <!-- ORDINAIRE SECTION -->
                 <div id="ordinaireSection" class="linge-category-section" style="display:none;">
@@ -442,10 +410,6 @@ TAS = VOLUMINEUX ou ORDINAIRE
                         <div class="color-card" data-color="couleur" data-volume="ordinaire">
                             <span class="color-icon">🎨</span>
                             <span>Couleur</span>
-                        </div>
-                        <div class="color-card" data-color="noir" data-volume="ordinaire">
-                            <span class="color-icon">⚫</span>
-                            <span>Noir</span>
                         </div>
                     </div>
 
@@ -506,36 +470,8 @@ TAS = VOLUMINEUX ou ORDINAIRE
                             <input type="hidden" name="b2_temperature" id="b2_temperature">
                         </div>
                     </div>
-
-                    <!-- NOIR ORDINAIRE -->
-                    <div id="noirOrdinaire" class="poids-group" style="display:none;">
-                        <h4>⚫ Noir Ordinaire</h4>
-                        
-                        <div class="form-group">
-                            <label>Poids (kg)</label>
-                            <input type="number" name="c2_poids" step="0.1" min="0" placeholder="0">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Température de lavage <span class="required">*</span></label>
-                            <div class="temperature-buttons">
-                                <button type="button" class="temp-btn" data-temp="chaud" data-category="c2">
-                                    🔥 Chaud
-                                </button>
-                                <button type="button" class="temp-btn" data-temp="tiede" data-category="c2">
-                                    🌡️ Tiède
-                                </button>
-                                <button type="button" class="temp-btn" data-temp="froid" data-category="c2">
-                                    ❄️ Froid
-                                </button>
-                                <button type="button" class="temp-btn" data-temp="choix" data-category="c2">
-                                    ⚙️ Au choix
-                                </button>
-                            </div>
-                            <input type="hidden" name="c2_temperature" id="c2_temperature">
-                        </div>
-                    </div>
                 </div>
+                <!-- Fin ordinaireSection -->
 
                 <!-- VALIDATION MESSAGE -->
                 <div id="poidsValidationMessage" class="help-text" style="display:none; background: #f8d7da; border-color: #f5c6cb; color: #721c24;">

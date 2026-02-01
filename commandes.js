@@ -2,13 +2,177 @@
 // SYSTÈME DE COMMANDE PROGRESSIVE - VERSION COMPLÈTE
 // ============================================
 
+// ============================================
+// GRILLE TARIFAIRE COMPLÈTE (du fichier fourni)
+// ============================================
+const tarifs = {
+    froid: [
+        { min: 0, max: 6, prix: 2500 },
+        { min: 6, max: 8, prix: 3000 },
+        { min: 8, max: 10, prix: 5000 }
+    ],
+    tiede: [
+        { min: 0, max: 6, prix: 3000 },
+        { min: 6, max: 8, prix: 3500 },
+        { min: 8, max: 10, prix: 6000 }
+    ],
+    chaud: [
+        { min: 0, max: 6, prix: 3500 },
+        { min: 6, max: 8, prix: 4000 },
+        { min: 8, max: 10, prix: 7000 }
+    ]
+};
+
+const tarifsCommunePrix = {
+    godomey: 500,
+    cotonou: 1000,
+    calavi: 800,
+    autres: 1500
+};
+
+// ============================================
+// ✅ SYSTÈME DE FIDÉLITÉ - CYCLE DE 11 LAVAGES
+// ============================================
+let userNombreLavage = 0;
+
+function getNombreLavage() {
+    return userNombreLavage;
+}
+
+function loadUserPoints() {
+    fetch('get_user_points.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                userNombreLavage = parseInt(data.nombre_lavage) || 0;
+            } else {
+                userNombreLavage = 0;
+            }
+        })
+        .catch(() => {
+            userNombreLavage = 0;
+        });
+}
+
+// ============================================
+// CALCUL DU PRIX DE SÉCHAGE
+// ============================================
+function calculerPrixSechage(poids) {
+    if (poids <= 0) return 0;
+    if (poids <= 2) return 1000;
+    if (poids <= 3) return 1500;
+    if (poids <= 4) return 2000;
+    if (poids <= 6) return 2500;
+    if (poids <= 8) return 3000;
+    return 3000 + calculerPrixSechage(poids - 8);
+}
+
+// ============================================
+// CALCUL DU PRIX DE PLIAGE
+// ============================================
+function calculerPrixPliage(poidsTotal) {
+    if (poidsTotal < 4) return 0;
+
+    const quotient = Math.floor(poidsTotal / 8);
+    const reste = poidsTotal % 8;
+
+    let prix = quotient * 500;
+    if (reste >= 4) prix += 500;
+
+    return prix;
+}
+
+// ============================================
+// CALCUL DU PRIX DE REPASSAGE
+// ============================================
+function calculerPrixRepassage(poidsVolumineux, poidsOrdinaire) {
+    let prixTotal = 0;
+
+    if (poidsVolumineux >= 4) {
+        prixTotal += Math.floor(poidsVolumineux / 4) * 200;
+    }
+
+    if (poidsOrdinaire >= 4) {
+        prixTotal += Math.floor(poidsOrdinaire / 4) * 150;
+    }
+
+    return prixTotal;
+}
+
+// ============================================
+// CALCUL DU PRIX DE LAVAGE - LINGE VOLUMINEUX
+// ============================================
+function calculerPrixLavageVolumineux(poids, temperature) {
+    if (poids <= 0) return { prix: 0, lav: 0 };
+
+    const grille = tarifs[temperature];
+    let prix10kg = 0;
+
+    for (let tranche of grille) {
+        if (10 > tranche.min && 10 <= tranche.max) {
+            prix10kg = tranche.prix;
+            break;
+        }
+    }
+
+    let prixTotal = 0;
+    let poidsRestant = poids;
+    let lav = 0;
+
+    while (poidsRestant >= 10) {
+        prixTotal += prix10kg + Math.ceil(prix10kg * 0.55);
+        lav += 2;
+        poidsRestant -= 10;
+    }
+
+    if (poidsRestant > 0) {
+        if (poidsRestant >= 9) {
+            prixTotal += prix10kg + Math.ceil(prix10kg * 0.55);
+            lav += 2;
+        } else {
+            prixTotal += prix10kg;
+            lav += 1;
+        }
+    }
+
+    return { prix: prixTotal, lav };
+}
+
+// ============================================
+// CALCUL DU PRIX DE LAVAGE - LINGE ORDINAIRE
+// ============================================
+function calculerPrixLavageOrdinaire(poids, temperature) {
+    if (poids <= 0) return { prix: 0, lav: 0 };
+
+    const grille = tarifs[temperature];
+    let prixTotal = 0;
+    let lav = 0;
+    let poidsRestant = poids;
+
+    while (poidsRestant > 0) {
+        const poidsTraite = Math.min(poidsRestant, 10);
+
+        for (let tranche of grille) {
+            if (poidsTraite > tranche.min && poidsTraite <= tranche.max) {
+                prixTotal += tranche.prix;
+                lav++;
+                break;
+            }
+        }
+
+        poidsRestant -= 10;
+    }
+
+    return { prix: prixTotal, lav };
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     // VARIABLES GLOBALES
     // ============================================
     let currentStep = 1;
     const totalSteps = 9;
-    let skipProtocol = false; // Indique si on saute le protocole (commande à blanc)
+    let skipProtocol = false;
     
     // Éléments DOM
     const progressBar = document.getElementById('progressBar');
@@ -18,6 +182,78 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnSubmit = document.getElementById('btnSubmit');
     const stepSections = document.querySelectorAll('.step-section');
     const commandeForm = document.getElementById('commandeForm');
+    
+    // Charger les points de fidélité
+    loadUserPoints();
+    
+    // ============================================
+    // GESTION LOCALSTORAGE POUR LES POIDS/TEMPÉRATURES
+    // ============================================
+    
+    function saveFormData() {
+        const formData = {
+            poids: {},
+            temperatures: {}
+        };
+        
+        // Sauvegarder tous les poids (incluant c1 et c2)
+        const categories = ['a1', 'b1', 'c1', 'a2', 'b2', 'c2'];
+        categories.forEach(cat => {
+            const poidsInput = document.querySelector(`input[name="${cat}_poids"]`);
+            const tempInput = document.getElementById(`${cat}_temperature`);
+            
+            if (poidsInput) {
+                formData.poids[cat] = poidsInput.value;
+            }
+            
+            if (tempInput) {
+                formData.temperatures[cat] = tempInput.value;
+            }
+        });
+        
+        localStorage.setItem('commandeFormData', JSON.stringify(formData));
+    }
+    
+    function loadFormData() {
+        const savedData = localStorage.getItem('commandeFormData');
+        if (savedData) {
+            try {
+                const formData = JSON.parse(savedData);
+                
+                // Restaurer les poids
+                Object.keys(formData.poids).forEach(cat => {
+                    const poidsInput = document.querySelector(`input[name="${cat}_poids"]`);
+                    if (poidsInput && formData.poids[cat]) {
+                        poidsInput.value = formData.poids[cat];
+                    }
+                });
+                
+                // Restaurer les températures
+                Object.keys(formData.temperatures).forEach(cat => {
+                    const tempInput = document.getElementById(`${cat}_temperature`);
+                    const tempValue = formData.temperatures[cat];
+                    
+                    if (tempInput && tempValue) {
+                        tempInput.value = tempValue;
+                        
+                        // Réactiver le bouton correspondant
+                        const activeButton = document.querySelector(`.temp-btn[data-category="${cat}"][data-temp="${tempValue}"]`);
+                        if (activeButton) {
+                            activeButton.classList.add('active');
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Erreur lors du chargement des données:', e);
+            }
+        }
+    }
+    
+    // Charger les données au démarrage
+    loadFormData();
+    
+    // Sauvegarder à chaque changement
+    commandeForm.addEventListener('input', saveFormData);
     
     // ============================================
     // GESTION DE LA BARRE DE PROGRESSION
@@ -51,6 +287,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         updateProgress();
+        
+        // ✨ Calcul automatique du récapitulatif à l'étape 8
+        if (step === 8) {
+            calculerRecapitulatif();
+        }
+        
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
@@ -105,12 +347,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.value) {
                 dateLivraison.setAttribute('min', this.value);
             }
+            validateHeureEcart();
         });
         
         dateLivraison.addEventListener('input', function() {
             if (!dateCollecte.value) {
                 dateCollecte.value = this.value;
             }
+            validateHeureEcart();
         });
     }
     
@@ -140,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Validation de l'écart de 12h
+    // ✨ Validation conditionnelle de l'écart de 12h
     function validateHeureEcart() {
         const dateC = dateCollecte.value;
         const dateL = dateLivraison.value;
@@ -152,14 +396,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         }
         
+        // La contrainte de 12h ne s'applique que si les dates sont identiques
+        if (dateC !== dateL) {
+            if (heureWarning) heureWarning.style.display = 'none';
+            return true;
+        }
+        
+        // Dates identiques : vérifier l'écart de 12h
         const dtCollecte = new Date(dateC + 'T' + heureC);
         const dtLivraison = new Date(dateL + 'T' + heureL);
-        const diff = (dtLivraison - dtCollecte) / (1000 * 60 * 60); // en heures
+        const diff = (dtLivraison - dtCollecte) / (1000 * 60 * 60);
         
         if (diff < 12) {
             if (heureWarning) {
                 heureWarning.style.display = 'block';
-                heureWarning.textContent = `⚠️ L'écart actuel est de ${diff.toFixed(1)}h. Un minimum de 12h est requis.`;
+                heureWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> L'écart actuel est de ${diff.toFixed(1)}h. Pour une livraison le même jour, un minimum de 12h est requis.`;
             }
             return false;
         } else {
@@ -212,7 +463,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ============================================
-    // GESTION TYPE DE LINGE (Volumineux/Ordinaire)
+    // GESTION BOUTON "CONTINUER AVEC COMMANDE À BLANC"
+    // ============================================
+    const btnConfirmerCommandeBlanc = document.getElementById('btnConfirmerCommandeBlanc');
+    
+    if (btnConfirmerCommandeBlanc) {
+        btnConfirmerCommandeBlanc.addEventListener('click', function() {
+            if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
+                alert('Veuillez d\'abord remplir correctement les informations client, adresses et dates.');
+                return;
+            }
+            
+            const commandeBlancData = {
+                nomClient: document.getElementById('nomClient').value,
+                telephone: document.getElementById('telephone').value,
+                adresseCollecte: adresseCollecte.value || adresseLivraison.value,
+                descriptionCollecte: document.getElementById('descriptionCollecte').value,
+                adresseLivraison: adresseLivraison.value || adresseCollecte.value,
+                descriptionLivraison: document.getElementById('descriptionLivraison').value,
+                dateCollecte: dateCollecte.value || dateLivraison.value,
+                heureCollecte: heureCollecte.value || heureLivraison.value,
+                dateLivraison: dateLivraison.value || dateCollecte.value,
+                heureLivraison: heureLivraison.value || heureCollecte.value
+            };
+            
+            sessionStorage.setItem('commandeBlancData', JSON.stringify(commandeBlancData));
+            window.location.href = 'confirmation_commande_blanc.html';
+        });
+    }
+    
+    // ============================================
+    // GESTION TYPE DE LINGE (Étape 7)
     // ============================================
     const btnVolumineux = document.getElementById('btnVolumineux');
     const btnOrdinaire = document.getElementById('btnOrdinaire');
@@ -222,14 +503,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnVolumineux && volumineuxSection) {
         btnVolumineux.addEventListener('click', function() {
             this.classList.toggle('active');
-            volumineuxSection.style.display = this.classList.contains('active') ? 'block' : 'none';
             
-            if (!this.classList.contains('active')) {
-                // Réinitialiser
-                volumineuxSection.querySelectorAll('.color-card').forEach(card => card.classList.remove('active'));
+            if (this.classList.contains('active')) {
+                volumineuxSection.style.display = 'block';
+            } else {
+                volumineuxSection.style.display = 'none';
+                volumineuxSection.querySelectorAll('.color-card').forEach(card => {
+                    card.classList.remove('active');
+                });
                 volumineuxSection.querySelectorAll('.poids-group').forEach(group => {
                     group.style.display = 'none';
-                    group.querySelectorAll('input').forEach(inp => inp.value = '');
                 });
             }
         });
@@ -238,59 +521,52 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnOrdinaire && ordinaireSection) {
         btnOrdinaire.addEventListener('click', function() {
             this.classList.toggle('active');
-            ordinaireSection.style.display = this.classList.contains('active') ? 'block' : 'none';
             
-            if (!this.classList.contains('active')) {
-                // Réinitialiser
-                ordinaireSection.querySelectorAll('.color-card').forEach(card => card.classList.remove('active'));
+            if (this.classList.contains('active')) {
+                ordinaireSection.style.display = 'block';
+            } else {
+                ordinaireSection.style.display = 'none';
+                ordinaireSection.querySelectorAll('.color-card').forEach(card => {
+                    card.classList.remove('active');
+                });
                 ordinaireSection.querySelectorAll('.poids-group').forEach(group => {
                     group.style.display = 'none';
-                    group.querySelectorAll('input').forEach(inp => inp.value = '');
                 });
             }
         });
     }
     
     // ============================================
-    // GESTION DES COULEURS
+    // ✨ GESTION DES COULEURS AVEC CONSERVATION DES DONNÉES
     // ============================================
     const colorCards = document.querySelectorAll('.color-card');
-    
-    const colorGroupMap = {
-        'blanc-volumineux': 'blancVolumineux',
-        'couleur-volumineux': 'couleurVolumineux',
-        'noir-volumineux': 'noirVolumineux',
-        'blanc-ordinaire': 'blancOrdinaire',
-        'couleur-ordinaire': 'couleurOrdinaire',
-        'noir-ordinaire': 'noirOrdinaire'
-    };
     
     colorCards.forEach(card => {
         card.addEventListener('click', function() {
             const color = this.getAttribute('data-color');
             const volume = this.getAttribute('data-volume');
-            const groupKey = `${color}-${volume}`;
-            const groupId = colorGroupMap[groupKey];
+            const groupId = color + volume.charAt(0).toUpperCase() + volume.slice(1);
             const poidsGroup = document.getElementById(groupId);
             
+            // Toggle active
             this.classList.toggle('active');
             
-            if (poidsGroup) {
-                if (this.classList.contains('active')) {
-                    poidsGroup.style.display = 'block';
-                } else {
-                    poidsGroup.style.display = 'none';
-                    // Réinitialiser les champs
-                    poidsGroup.querySelectorAll('input').forEach(input => {
-                        input.value = '';
-                    });
-                }
+            if (this.classList.contains('active')) {
+                // Afficher le groupe
+                poidsGroup.style.display = 'block';
+            } else {
+                // Masquer le groupe SANS réinitialiser les valeurs
+                // Les valeurs sont conservées grâce au localStorage
+                poidsGroup.style.display = 'none';
             }
+            
+            // Sauvegarder immédiatement
+            saveFormData();
         });
     });
     
     // ============================================
-    // GESTION DES BOUTONS DE TEMPÉRATURE
+    // GESTION BOUTONS TEMPÉRATURE
     // ============================================
     const tempButtons = document.querySelectorAll('.temp-btn');
     
@@ -298,22 +574,24 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             
-            const category = this.getAttribute('data-category');
             const temp = this.getAttribute('data-temp');
+            const category = this.getAttribute('data-category');
+            const hiddenInput = document.getElementById(`${category}_temperature`);
             
-            // Désactiver les autres boutons de la même catégorie
-            document.querySelectorAll(`.temp-btn[data-category="${category}"]`).forEach(btn => {
-                btn.classList.remove('active');
-            });
+            // Retirer l'active de tous les boutons de la même catégorie
+            const categoryButtons = document.querySelectorAll(`.temp-btn[data-category="${category}"]`);
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
             
-            // Activer le bouton cliqué
+            // Activer ce bouton
             this.classList.add('active');
             
             // Mettre à jour le champ caché
-            const hiddenInput = document.getElementById(`${category}_temperature`);
             if (hiddenInput) {
                 hiddenInput.value = temp;
             }
+            
+            // Sauvegarder
+            saveFormData();
         });
     });
     
@@ -321,21 +599,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // VALIDATION DES ÉTAPES
     // ============================================
     function validateStep(step) {
-        const currentSection = document.querySelector(`.step-section[data-step="${step}"]`);
-        
         // Étape 1 : Informations client
         if (step === 1) {
-            const nom = document.getElementById('nomClient').value.trim();
-            const tel = document.getElementById('telephone').value.trim();
+            const nomClient = document.getElementById('nomClient').value.trim();
+            const telephone = document.getElementById('telephone').value.trim();
             
-            if (!nom || !tel) {
-                alert('Veuillez remplir tous les champs obligatoires.');
+            if (!nomClient) {
+                alert('Veuillez renseigner le nom du client.');
                 return false;
             }
             
-            // Validation téléphone
-            const telClean = tel.replace(/[^0-9]/g, '');
-            if (telClean.length !== 8 && telClean.length !== 11) {
+            if (!telephone) {
+                alert('Veuillez renseigner le numéro de téléphone.');
+                return false;
+            }
+            
+            const telRegex = /^(\d{8}|\d{11})$/;
+            if (!telRegex.test(telephone.replace(/\s/g, ''))) {
                 alert('Le numéro de téléphone doit contenir 8 ou 11 chiffres.');
                 return false;
             }
@@ -345,10 +625,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Étape 2 : Adresses
         if (step === 2) {
-            const addrC = adresseCollecte.value.trim();
-            const addrL = adresseLivraison.value.trim();
+            const adresseC = adresseCollecte.value.trim();
+            const adresseL = adresseLivraison.value.trim();
             
-            if (!addrC && !addrL) {
+            if (!adresseC && !adresseL) {
                 alert('Veuillez renseigner au moins une adresse (collecte ou livraison).');
                 return false;
             }
@@ -363,21 +643,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const heureC = heureCollecte.value;
             const heureL = heureLivraison.value;
             
-            // Au moins une date
             if (!dateC && !dateL) {
                 alert('Veuillez renseigner au moins une date (collecte ou livraison).');
                 return false;
             }
             
-            // Au moins une heure
             if (!heureC && !heureL) {
                 alert('Veuillez renseigner au moins une heure (collecte ou livraison).');
                 return false;
             }
             
-            // Validation écart 12h
             if (!validateHeureEcart()) {
-                alert('L\'écart entre la collecte et la livraison doit être d\'au moins 12 heures.');
+                alert('L\'écart entre la collecte et la livraison doit être d\'au moins 12 heures pour une livraison le même jour.');
                 return false;
             }
             
@@ -397,33 +674,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const optionChoice = document.querySelector('input[name="optionNonPese"]:checked');
                 
                 if (!optionChoice) {
-                    alert('Veuillez choisir une option.');
+                    alert('Veuillez choisir une option (laverie ou commande à blanc).');
                     return false;
                 }
                 
-                // Si option laverie : redirection
-                if (optionChoice.value === 'laverie') {
-                    window.location.href = 'index.html';
-                    return false;
-                }
-                
-                // Si option commande à blanc : préparer les données et rediriger
-                if (optionChoice.value === 'commande_blanc') {
-                    const commandeData = {
-                        nomClient: document.getElementById('nomClient').value,
-                        telephone: document.getElementById('telephone').value,
-                        adresseCollecte: adresseCollecte.value || adresseLivraison.value,
-                        descriptionCollecte: document.getElementById('descriptionCollecte').value,
-                        adresseLivraison: adresseLivraison.value || adresseCollecte.value,
-                        descriptionLivraison: document.getElementById('descriptionLivraison').value,
-                        dateCollecte: dateCollecte.value || dateLivraison.value,
-                        heureCollecte: heureCollecte.value || heureLivraison.value,
-                        dateLivraison: dateLivraison.value || dateCollecte.value,
-                        heureLivraison: heureLivraison.value || heureCollecte.value
-                    };
-                    
-                    sessionStorage.setItem('commandeBlancData', JSON.stringify(commandeData));
-                    window.location.href = 'confirmation_commande_blanc.html';
+                if (optionChoice.value === 'commandeBlanc') {
                     return false;
                 }
             }
@@ -431,7 +686,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         }
         
-        // Étape 5 : Protocole (pas de validation nécessaire)
+        // Étape 5 : Protocole (pas de validation)
         if (step === 5) {
             return true;
         }
@@ -452,10 +707,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (step === 7) {
             const poidsTotal = parseFloat(document.getElementById('poidsTotal').value);
             
-            // Collecter tous les poids
-            const categories = ['a1', 'b1', 'c1', 'a2', 'b2', 'c2'];
+            // Collecter tous les poids (seulement blanc et couleur, pas noir)
+            const categories = ['a1', 'b1', 'a2', 'b2'];
             let sommePoids = 0;
             let auMoinsUnPoids = false;
+            let validationError = false;
             
             categories.forEach(cat => {
                 const poidsInput = document.querySelector(`input[name="${cat}_poids"]`);
@@ -468,14 +724,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         auMoinsUnPoids = true;
                         sommePoids += poids;
                         
-                        // Vérifier qu'une température est sélectionnée
+                        // Vérifier qu'une température est sélectionnée SEULEMENT si poids > 0
                         if (!tempInput || !tempInput.value) {
                             alert(`Veuillez sélectionner une température pour le sous-tas ${cat.toUpperCase()}.`);
-                            return false;
+                            validationError = true;
                         }
                     }
                 }
             });
+            
+            if (validationError) {
+                return false;
+            }
             
             if (!auMoinsUnPoids) {
                 alert('Veuillez renseigner au moins un poids de linge.');
@@ -508,9 +768,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Calculer et afficher le récapitulatif
-            calculerRecapitulatif();
-            
             return true;
         }
         
@@ -535,30 +792,127 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ============================================
-    // CALCUL DU RÉCAPITULATIF
+    // ✅ CALCUL DU RÉCAPITULATIF (nouvelle logique)
     // ============================================
     function calculerRecapitulatif() {
-        // Cette fonction sera appelée par le backend
-        // Pour l'instant, on affiche juste un placeholder
-        document.getElementById('recapPrixLavage').textContent = '(Calcul en cours...)';
-        document.getElementById('recapPrixSechage').textContent = '(Calcul en cours...)';
-        document.getElementById('recapPrixPliage').textContent = '(Calcul en cours...)';
+        console.log('=== DÉBUT CALCUL RÉCAPITULATIF ===');
+        
+        let prixLavageTotal = 0;
+        let lavTotal = 0;
+        let poidsVolumineuxTotal = 0;
+        let poidsOrdinaireTotal = 0;
+        let poidsGrandTotal = 0;
+        
+        // Champs à traiter (seulement blanc et couleur)
+        const champs = [
+            { cat: 'a1', temp: null, type: 'volumineux' },
+            { cat: 'b1', temp: null, type: 'volumineux' },
+            { cat: 'a2', temp: null, type: 'ordinaire' },
+            { cat: 'b2', temp: null, type: 'ordinaire' }
+        ];
+        
+        champs.forEach(field => {
+            const poidsInput = document.querySelector(`input[name="${field.cat}_poids"]`);
+            const tempInput = document.getElementById(`${field.cat}_temperature`);
+            
+            if (poidsInput && tempInput) {
+                const poids = parseFloat(poidsInput.value) || 0;
+                const temp = tempInput.value;
+                
+                console.log(`Champ ${field.cat}: poids=${poids}, temp=${temp}`);
+                
+                if (poids > 0 && temp) {
+                    const result = field.type === 'volumineux'
+                        ? calculerPrixLavageVolumineux(poids, temp)
+                        : calculerPrixLavageOrdinaire(poids, temp);
+                    
+                    console.log(`  -> Résultat: prix=${result.prix}, lav=${result.lav}`);
+                    
+                    prixLavageTotal += result.prix;
+                    lavTotal += result.lav;
+                    
+                    poidsGrandTotal += poids;
+                    if (field.type === 'volumineux') {
+                        poidsVolumineuxTotal += poids;
+                    } else {
+                        poidsOrdinaireTotal += poids;
+                    }
+                }
+            }
+        });
+        
+        console.log(`Totaux: lavage=${prixLavageTotal}, lav=${lavTotal}, poids=${poidsGrandTotal}`);
+        
+        // Calcul de la réduction fidélité
+        const totalLavages = userNombreLavage + lavTotal;
+        const reductionFidelite = Math.floor(totalLavages / 11) * 2500;
+        const prixLavageFinal = Math.max(0, prixLavageTotal - reductionFidelite);
+        
+        console.log(`Fidélité: userNombreLavage=${userNombreLavage}, totalLavages=${totalLavages}, réduction=${reductionFidelite}`);
+        
+        // Calcul séchage, pliage, repassage
+        const prixSechage = calculerPrixSechage(poidsGrandTotal);
+        const prixPliage = calculerPrixPliage(poidsGrandTotal);
+        
+        console.log(`Séchage=${prixSechage}, Pliage=${prixPliage}`);
         
         const repassageChoice = document.querySelector('input[name="repassage"]:checked');
-        const recapRepassageContainer = document.getElementById('recapRepassageContainer');
+        let prixRepassage = 0;
         
         if (repassageChoice && repassageChoice.value === 'oui') {
-            if (recapRepassageContainer) {
-                recapRepassageContainer.style.display = 'flex';
-                document.getElementById('recapPrixRepassage').textContent = '(Calcul en cours...)';
-            }
-        } else {
-            if (recapRepassageContainer) {
-                recapRepassageContainer.style.display = 'none';
-            }
+            prixRepassage = calculerPrixRepassage(poidsVolumineuxTotal, poidsOrdinaireTotal);
+            console.log(`Repassage=${prixRepassage}`);
         }
         
-        document.getElementById('recapTotal').textContent = '(Calcul en cours...)';
+        // Total
+        const total = prixLavageFinal + prixSechage + prixPliage + prixRepassage;
+        
+        console.log(`TOTAL FINAL=${total}`);
+        
+        // Vérifier que les éléments existent avant de les mettre à jour
+        const elemRecapPrixLavage = document.getElementById('recapPrixLavage');
+        const elemRecapPrixSechage = document.getElementById('recapPrixSechage');
+        const elemRecapPrixPliage = document.getElementById('recapPrixPliage');
+        const elemRecapTotal = document.getElementById('recapTotal');
+        
+        if (!elemRecapPrixLavage || !elemRecapPrixSechage || !elemRecapPrixPliage || !elemRecapTotal) {
+            console.error('ERREUR: Un ou plusieurs éléments de récapitulatif sont introuvables!');
+            console.error({
+                elemRecapPrixLavage: !!elemRecapPrixLavage,
+                elemRecapPrixSechage: !!elemRecapPrixSechage,
+                elemRecapPrixPliage: !!elemRecapPrixPliage,
+                elemRecapTotal: !!elemRecapTotal
+            });
+            return;
+        }
+        
+        // Affichage
+        elemRecapPrixLavage.textContent = Math.round(prixLavageTotal).toLocaleString() + ' FCFA';
+        elemRecapPrixSechage.textContent = Math.round(prixSechage).toLocaleString() + ' FCFA';
+        elemRecapPrixPliage.textContent = Math.round(prixPliage).toLocaleString() + ' FCFA';
+        elemRecapTotal.textContent = Math.round(total).toLocaleString() + ' FCFA';
+        
+        console.log('Affichage mis à jour');
+        
+        // Réduction fidélité
+        const recapReductionContainer = document.getElementById('recapReductionContainer');
+        if (reductionFidelite > 0 && recapReductionContainer) {
+            recapReductionContainer.style.display = 'flex';
+            document.getElementById('recapReduction').textContent = '- ' + Math.round(reductionFidelite).toLocaleString() + ' FCFA';
+        } else if (recapReductionContainer) {
+            recapReductionContainer.style.display = 'none';
+        }
+        
+        // Repassage
+        const recapRepassageContainer = document.getElementById('recapRepassageContainer');
+        if (repassageChoice && repassageChoice.value === 'oui' && recapRepassageContainer) {
+            recapRepassageContainer.style.display = 'flex';
+            document.getElementById('recapPrixRepassage').textContent = Math.round(prixRepassage).toLocaleString() + ' FCFA';
+        } else if (recapRepassageContainer) {
+            recapRepassageContainer.style.display = 'none';
+        }
+        
+        console.log('=== FIN CALCUL RÉCAPITULATIF ===');
     }
     
     // ============================================
@@ -566,11 +920,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     btnNext.addEventListener('click', function() {
         if (validateStep(currentStep)) {
-            // Cas spécial : skip étape 5 (protocole) si pèse = non
             if (currentStep === 4) {
                 const peseChoice = document.querySelector('input[name="disponibilitePese"]:checked');
                 if (peseChoice && peseChoice.value === 'non') {
-                    // Cette condition ne devrait jamais arriver car on redirige déjà
                     return;
                 }
             }
@@ -595,15 +947,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Préparer les données
         const formData = collectFormData();
-        
-        // Envoyer au serveur
         submitOrder(formData);
     });
     
     function collectFormData() {
-        const categories = ['a1', 'b1', 'c1', 'a2', 'b2', 'c2'];
+        const categories = ['a1', 'b1', 'a2', 'b2'];
         const poids = {};
         
         categories.forEach(cat => {
@@ -652,7 +1001,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                // Rediriger vers le paiement
+                // Nettoyer le localStorage après soumission réussie
+                localStorage.removeItem('commandeFormData');
                 window.location.href = 'payment.php?orderId=' + result.orderId;
             } else {
                 alert('Erreur : ' + result.message);

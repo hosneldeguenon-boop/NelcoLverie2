@@ -8,7 +8,14 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require_once 'vendor/autoload.php';
+// On charge manuellement les fichiers (adaptez le chemin si nécessaire)
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
+$mail = new PHPMailer(true);
+// ... la suite de votre configuration
+
 
 /**
  * Configuration SMTP

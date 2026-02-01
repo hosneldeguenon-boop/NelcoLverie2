@@ -343,11 +343,11 @@ try {
         <div class="quick-actions">
             <h2>🚀 Actions rapides</h2>
             <div class="actions-grid">
-                <a href="admin_orders.php" class="action-btn">
+                <a href="admin/manage_orders.php" class="action-btn">
                     <i class="fas fa-list"></i>
                     Gérer les commandes
                 </a>
-                <a href="admin/view_users.php" class="action-btn">
+                <a href="admin/view_users_v2.php" class="action-btn">
                     <i class="fas fa-users-cog"></i>
                     Voir les utilisateurs
                 </a>
