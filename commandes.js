@@ -105,7 +105,9 @@ function calculerPrixRepassage(poidsVolumineux, poidsOrdinaire) {
 function calculerPrixLavageVolumineux(poids, temperature) {
     if (poids <= 0) return { prix: 0, lav: 0 };
 
-    const grille = tarifs[temperature];
+    // ✅ Traiter "choix" comme "chaud"
+    const tempEffective = temperature === 'choix' ? 'chaud' : temperature;
+    const grille = tarifs[tempEffective];
     let prix10kg = 0;
 
     for (let tranche of grille) {
@@ -144,7 +146,9 @@ function calculerPrixLavageVolumineux(poids, temperature) {
 function calculerPrixLavageOrdinaire(poids, temperature) {
     if (poids <= 0) return { prix: 0, lav: 0 };
 
-    const grille = tarifs[temperature];
+    // ✅ Traiter "choix" comme "chaud"
+    const tempEffective = temperature === 'choix' ? 'chaud' : temperature;
+    const grille = tarifs[tempEffective];
     let prixTotal = 0;
     let lav = 0;
     let poidsRestant = poids;
@@ -678,9 +682,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 
-                if (optionChoice.value === 'commandeBlanc') {
-                    return false;
-                }
+                // Ne pas bloquer ici - la redirection sera gérée dans btnNext
             }
             
             return true;
@@ -920,9 +922,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     btnNext.addEventListener('click', function() {
         if (validateStep(currentStep)) {
+            // Gestion spéciale de l'étape 4 (disponibilité pèse)
             if (currentStep === 4) {
                 const peseChoice = document.querySelector('input[name="disponibilitePese"]:checked');
                 if (peseChoice && peseChoice.value === 'non') {
+                    const optionChoice = document.querySelector('input[name="optionNonPese"]:checked');
+                    
+                    if (optionChoice) {
+                        if (optionChoice.value === 'laverie') {
+                            // Rediriger vers la page d'accueil
+                            window.location.href = 'index.html';
+                            return;
+                        } else if (optionChoice.value === 'commande_blanc') {
+                            // Préparer les données et rediriger vers confirmation commande à blanc
+                            if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
+                                alert('Veuillez d\'abord remplir correctement les informations client, adresses et dates.');
+                                return;
+                            }
+                            
+                            const commandeBlancData = {
+                                nomClient: document.getElementById('nomClient').value,
+                                telephone: document.getElementById('telephone').value,
+                                adresseCollecte: adresseCollecte.value || adresseLivraison.value,
+                                descriptionCollecte: document.getElementById('descriptionCollecte').value,
+                                adresseLivraison: adresseLivraison.value || adresseCollecte.value,
+                                descriptionLivraison: document.getElementById('descriptionLivraison').value,
+                                dateCollecte: dateCollecte.value || dateLivraison.value,
+                                heureCollecte: heureCollecte.value || heureLivraison.value,
+                                dateLivraison: dateLivraison.value || dateCollecte.value,
+                                heureLivraison: heureLivraison.value || heureCollecte.value
+                            };
+                            
+                            sessionStorage.setItem('commandeBlancData', JSON.stringify(commandeBlancData));
+                            window.location.href = 'confirmation_commande_blanc.html';
+                            return;
+                        }
+                    }
                     return;
                 }
             }
