@@ -1,6 +1,6 @@
 <?php
 /**
- * ✅ TRAITEMENT COMMANDE À BLANC
+ * ✅ TRAITEMENT COMMANDE À BLANC - CORRECTION DU BUG STATUS
  * Enregistre uniquement les données collectées, sans poids ni température
  */
 
@@ -78,7 +78,7 @@ try {
         'heureLivraison' => $data['heureLivraison']
     ];
     
-    // Insertion dans la base (montants à 0, sera calculé plus tard)
+    // ✅ CORRECTION : Insertion dans la base avec le bon ordre des valeurs
     $stmt = $conn->prepare("
         INSERT INTO orders (
             user_id,
@@ -101,10 +101,10 @@ try {
             payment_method,
             status
         ) VALUES (
-            ?, ?, ?, 'commande_blanc',
             ?, ?, ?, ?,
-            0, 0, 0, 0, 0, 0, 0, 0,
-            ?, 'pending', 'en_attente_pesee'
+            ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?
         )
     ");
     
@@ -116,11 +116,22 @@ try {
         $userId,
         $orderNumber,
         $user['customer_code'],
+        'commande_blanc',       // service_type
         cleanInput($data['adresseCollecte']) . (isset($data['descriptionCollecte']) && $data['descriptionCollecte'] ? ' - ' . cleanInput($data['descriptionCollecte']) : ''),
         $pickupDateTime,
         cleanInput($data['adresseLivraison']) . (isset($data['descriptionLivraison']) && $data['descriptionLivraison'] ? ' - ' . cleanInput($data['descriptionLivraison']) : ''),
         $deliveryDateTime,
-        json_encode($orderDetails, JSON_UNESCAPED_UNICODE)
+        0,                      // total_amount
+        0,                      // washing_price
+        0,                      // drying_price
+        0,                      // folding_price
+        0,                      // ironing_price
+        0,                      // delivery_price
+        0,                      // loyalty_discount
+        0,                      // total_weight
+        json_encode($orderDetails, JSON_UNESCAPED_UNICODE),
+        'pending',              // payment_method
+        'en_attente'            // ✅ status CORRIGÉ : 'en_attente' au lieu de 'en_attente_pesee'
     ]);
     
     $orderId = $conn->lastInsertId();
