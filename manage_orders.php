@@ -6,8 +6,8 @@
  * - Support des commandes à blanc
  * - Demande du nombre de lavages à la livraison des commandes à blanc
  */
-
 require_once '../config.php';
+require_once 'affichage_details_linge.php';
 
 // Traiter les actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -563,45 +563,148 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             const isCommandeBlanc = order.service_type === 'commande_blanc';
             
             // ============================================
-            // ✅ GÉNÉRATION DE LA LISTE DES LINGES SÉLECTIONNÉS
+            // ✅ GÉNÉRATION DE LA LISTE DES LINGES SÉLECTIONNÉS (NOUVEAU FORMAT)
             // ============================================
             let lingesHTML = '';
-            const linges = details.linges || [];
             
-            if (linges.length > 0 && !isCommandeBlanc) {
-                const ordinaires = linges.filter(l => l.type === 'ordinaire');
-                const volumineux = linges.filter(l => l.type === 'volumineux');
+            if (!isCommandeBlanc && details.poids) {
+                const categories = {
+                    'a1': { label: 'Volumineux A1', desc: 'Draps, couvertures, rideaux', icon: '🛏️', type: 'volumineux' },
+                    'b1': { label: 'Volumineux B1', desc: 'Serviettes, nappes', icon: '🧺', type: 'volumineux' },
+                    'c1': { label: 'Volumineux C1', desc: 'Tapis, couettes', icon: '🪑', type: 'volumineux' },
+                    'a2': { label: 'Ordinaire A2', desc: 'T-shirts, chemises, pantalons', icon: '👕', type: 'ordinaire' },
+                    'b2': { label: 'Ordinaire B2', desc: 'Sous-vêtements, chaussettes', icon: '🧦', type: 'ordinaire' },
+                    'c2': { label: 'Ordinaire C2', desc: 'Vestes, pulls', icon: '🧥', type: 'ordinaire' }
+                };
                 
-                if (ordinaires.length > 0) {
-                    lingesHTML += '<h4 style="color: #667eea; margin-top: 15px; margin-bottom: 10px;">📦 Linges Ordinaires</h4>';
-                    ordinaires.forEach(linge => {
-                        const couleurLabel = linge.couleur === 'blanc' ? '⚪ Blanc' : '🔵 Couleur';
-                        const tempLabel = linge.temperature === 'chaud' ? '🔥 Chaud' : 
-                                        linge.temperature === 'tiede' ? '🌡️ Tiède' : '❄️ Froid';
+                const temperatures = {
+                    'chaud': { label: 'Chaud', icon: '🔥', color: '#dc3545' },
+                    'tiede': { label: 'Tiède', icon: '🌡️', color: '#fd7e14' },
+                    'froid': { label: 'Froid', icon: '❄️', color: '#0dcaf0' },
+                    'choix': { label: 'Au choix', icon: '⚙️', color: '#6c757d' }
+                };
+                
+                const volumineux = [];
+                const ordinaires = [];
+                
+                // Parcourir tous les poids
+                for (const [catKey, catInfo] of Object.entries(categories)) {
+                    for (const [tempKey, tempInfo] of Object.entries(temperatures)) {
+                        const poidsKey = `${catKey}_${tempKey}`;
+                        const poidsValue = parseFloat(details.poids[poidsKey] || 0);
                         
-                        lingesHTML += `
-                            <div class="detail-item">
-                                <div class="detail-label">${linge.groupe} - ${couleurLabel} - ${tempLabel}</div>
-                                <div class="detail-value highlight">${linge.nombre} pièce(s) × ${linge.proportionUnite} kg = ${(linge.nombre * linge.proportionUnite).toFixed(2)} kg</div>
-                            </div>
-                        `;
-                    });
+                        if (poidsValue > 0) {
+                            const item = {
+                                categorie: catInfo.label,
+                                description: catInfo.desc,
+                                icon: catInfo.icon,
+                                type: catInfo.type,
+                                poids: poidsValue,
+                                temperature: tempInfo.label,
+                                tempIcon: tempInfo.icon,
+                                tempColor: tempInfo.color
+                            };
+                            
+                            if (catInfo.type === 'volumineux') {
+                                volumineux.push(item);
+                            } else {
+                                ordinaires.push(item);
+                            }
+                        }
+                    }
                 }
                 
+                // Afficher les linges volumineux
                 if (volumineux.length > 0) {
-                    lingesHTML += '<h4 style="color: #667eea; margin-top: 15px; margin-bottom: 10px;">🛏️ Linges Volumineux</h4>';
-                    volumineux.forEach(linge => {
-                        const couleurLabel = linge.couleur === 'blanc' ? '⚪ Blanc' : '🔵 Couleur';
-                        const tempLabel = linge.temperature === 'chaud' ? '🔥 Chaud' : 
-                                        linge.temperature === 'tiede' ? '🌡️ Tiède' : '❄️ Froid';
-                        
+                    lingesHTML += '<h4 style="color: #667eea; margin-top: 15px; margin-bottom: 10px;">🛏️ Linge Volumineux</h4>';
+                    lingesHTML += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">';
+                    volumineux.forEach(item => {
                         lingesHTML += `
-                            <div class="detail-item">
-                                <div class="detail-label">${linge.groupe} - ${couleurLabel} - ${tempLabel}</div>
-                                <div class="detail-value highlight">${linge.nombre} pièce(s) × ${linge.proportionUnite} kg = ${(linge.nombre * linge.proportionUnite).toFixed(2)} kg</div>
+                            <div style="
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                padding: 12px;
+                                border-left: 4px solid ${item.tempColor};
+                            ">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 4px;">
+                                    ${item.icon} ${item.categorie}
+                                </div>
+                                <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">
+                                    ${item.description}
+                                </div>
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <div style="font-size: 13px;">
+                                        <strong style="color: #667eea;">${item.poids.toFixed(1)} kg</strong>
+                                    </div>
+                                    <div style="
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 4px;
+                                        background: white;
+                                        padding: 4px 10px;
+                                        border-radius: 20px;
+                                        font-size: 12px;
+                                        color: ${item.tempColor};
+                                        font-weight: 500;
+                                    ">
+                                        ${item.tempIcon} ${item.temperature}
+                                    </div>
+                                </div>
                             </div>
                         `;
                     });
+                    lingesHTML += '</div>';
+                }
+                
+                // Afficher les linges ordinaires
+                if (ordinaires.length > 0) {
+                    lingesHTML += '<h4 style="color: #667eea; margin-top: 15px; margin-bottom: 10px;">👕 Linge Ordinaire</h4>';
+                    lingesHTML += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">';
+                    ordinaires.forEach(item => {
+                        lingesHTML += `
+                            <div style="
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                padding: 12px;
+                                border-left: 4px solid ${item.tempColor};
+                            ">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 4px;">
+                                    ${item.icon} ${item.categorie}
+                                </div>
+                                <div style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">
+                                    ${item.description}
+                                </div>
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <div style="font-size: 13px;">
+                                        <strong style="color: #667eea;">${item.poids.toFixed(1)} kg</strong>
+                                    </div>
+                                    <div style="
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 4px;
+                                        background: white;
+                                        padding: 4px 10px;
+                                        border-radius: 20px;
+                                        font-size: 12px;
+                                        color: ${item.tempColor};
+                                        font-weight: 500;
+                                    ">
+                                        ${item.tempIcon} ${item.temperature}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    lingesHTML += '</div>';
+                }
+                
+                // Afficher le repassage si demandé
+                if (details.repassageDemande === 'oui') {
+                    lingesHTML += `
+                        <div style="margin-top: 15px; padding: 12px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #2196F3;">
+                            <strong><i class="fas fa-iron"></i> Service de repassage demandé</strong>
+                        </div>
+                    `;
                 }
             }
             
