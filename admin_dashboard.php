@@ -351,9 +351,9 @@ try {
                     <i class="fas fa-users-cog"></i>
                     Voir les utilisateurs
                 </a>
-                <a href="view_admins.php" class="action-btn">
+                <a href="publish_announcement.php" class="action-btn">
                     <i class="fas fa-user-shield"></i>
-                    Liste des admins
+                    Publier une annonce
                 </a>
                 <a href="index.html" class="action-btn">
                     <i class="fas fa-home"></i>

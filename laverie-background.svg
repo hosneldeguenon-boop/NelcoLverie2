@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <!-- Gradient de fond -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Pattern de bulles -->
+    <pattern id="bubbles" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+      <circle cx="30" cy="30" r="3" fill="white" opacity="0.1"/>
+      <circle cx="80" cy="60" r="5" fill="white" opacity="0.15"/>
+      <circle cx="140" cy="40" r="4" fill="white" opacity="0.1"/>
+      <circle cx="170" cy="90" r="3" fill="white" opacity="0.12"/>
+      <circle cx="50" cy="140" r="6" fill="white" opacity="0.08"/>
+      <circle cx="120" cy="170" r="4" fill="white" opacity="0.1"/>
+    </pattern>
+    
+    <!-- Icône machine à laver stylisée -->
+    <g id="washer">
+      <!-- Corps de la machine -->
+      <rect x="0" y="0" width="80" height="100" rx="8" fill="white" opacity="0.08"/>
+      <!-- Hublot -->
+      <circle cx="40" cy="55" r="25" fill="none" stroke="white" stroke-width="3" opacity="0.15"/>
+      <circle cx="40" cy="55" r="20" fill="none" stroke="white" stroke-width="2" opacity="0.1"/>
+      <!-- Panneau de contrôle -->
+      <rect x="10" y="10" width="60" height="15" rx="3" fill="white" opacity="0.06"/>
+      <circle cx="20" cy="17" r="3" fill="white" opacity="0.1"/>
+      <circle cx="35" cy="17" r="3" fill="white" opacity="0.1"/>
+      <circle cx="50" cy="17" r="3" fill="white" opacity="0.1"/>
+    </g>
+    
+    <!-- Icône vêtement -->
+    <g id="cloth">
+      <path d="M 10 5 Q 15 0, 20 5 L 25 30 L 15 30 L 15 15 L 10 15 Z" fill="white" opacity="0.06"/>
+    </g>
+  </defs>
+  
+  <!-- Fond principal avec gradient -->
+  <rect width="1920" height="1080" fill="url(#bgGradient)"/>
+  
+  <!-- Layer de bulles -->
+  <rect width="1920" height="1080" fill="url(#bubbles)"/>
+  
+  <!-- Machines à laver décoratives -->
+  <use href="#washer" x="50" y="50" opacity="0.3"/>
+  <use href="#washer" x="1700" y="100" opacity="0.25"/>
+  <use href="#washer" x="150" y="800" opacity="0.2"/>
+  <use href="#washer" x="1600" y="850" opacity="0.3"/>
+  <use href="#washer" x="800" y="50" opacity="0.15"/>
+  <use href="#washer" x="1200" y="900" opacity="0.2"/>
+  
+  <!-- Vêtements décoratifs -->
+  <use href="#cloth" x="300" y="200" opacity="0.4"/>
+  <use href="#cloth" x="1500" y="300" opacity="0.3"/>
+  <use href="#cloth" x="400" y="700" opacity="0.35"/>
+  <use href="#cloth" x="1400" y="600" opacity="0.25"/>
+  
+  <!-- Grandes bulles décoratives -->
+  <circle cx="200" cy="400" r="60" fill="white" opacity="0.03"/>
+  <circle cx="1700" cy="500" r="80" fill="white" opacity="0.04"/>
+  <circle cx="900" cy="200" r="50" fill="white" opacity="0.03"/>
+  <circle cx="1100" cy="800" r="70" fill="white" opacity="0.035"/>
+  <circle cx="500" cy="900" r="55" fill="white" opacity="0.03"/>
+  
+  <!-- Motif ondulé subtil -->
+  <path d="M 0 300 Q 240 250, 480 300 T 960 300 T 1440 300 T 1920 300 L 1920 1080 L 0 1080 Z" 
+        fill="white" opacity="0.02"/>
+  <path d="M 0 600 Q 240 550, 480 600 T 960 600 T 1440 600 T 1920 600 L 1920 1080 L 0 1080 Z" 
+        fill="white" opacity="0.015"/>
+</svg>
