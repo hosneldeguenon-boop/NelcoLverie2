@@ -472,9 +472,36 @@
                 document.getElementById('btnPayer').disabled = false;
 
                 if (data.success) {
-                    console.log('SUCCESS! Redirecting to:', data.redirect);
-                    // Redirection immédiate
-                    window.location.href = data.redirect;
+                    console.log('SUCCESS!');
+                    
+                    // ============================================
+                    // GESTION DES DEUX TYPES DE REDIRECTION
+                    // ============================================
+                    
+                    if (data.redirect_type === 'fedapay') {
+                        // ✅ PAIEMENT EN LIGNE → Redirection vers FedaPay
+                        console.log('Redirecting to FedaPay:', data.fedapay_url);
+                        
+                        // Message de redirection
+                        const loadingContent = document.querySelector('.loading-content');
+                        loadingContent.innerHTML = `
+                            <div class="spinner"></div>
+                            <h3>Redirection vers FedaPay...</h3>
+                            <p>Veuillez patienter</p>
+                        `;
+                        document.getElementById('loadingOverlay').classList.add('active');
+                        
+                        // Redirection après un court délai
+                        setTimeout(() => {
+                            window.location.href = data.fedapay_url;
+                        }, 1000);
+                        
+                    } else {
+                        // ✅ PAIEMENT À LA LIVRAISON → Redirection classique
+                        console.log('Redirecting to:', data.redirect);
+                        window.location.href = data.redirect;
+                    }
+                    
                 } else {
                     console.log('FAILED:', data.message);
                     showError(data.message || 'Erreur lors du paiement');
@@ -499,6 +526,7 @@
                 errorBox.classList.remove('show');
             }, 5000);
         }
+
     </script>
 </body>
 </html>

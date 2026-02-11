@@ -146,28 +146,47 @@ function calculerPrixLavageVolumineux(poids, temperature) {
 function calculerPrixLavageOrdinaire(poids, temperature) {
     if (poids <= 0) return { prix: 0, lav: 0 };
 
-    // ✅ Traiter "choix" comme "chaud"
+    // Traiter "choix" comme "chaud"
     const tempEffective = temperature === 'choix' ? 'chaud' : temperature;
     const grille = tarifs[tempEffective];
-    let prixTotal = 0;
-    let lav = 0;
-    let poidsRestant = poids;
 
-    while (poidsRestant > 0) {
-        const poidsTraite = Math.min(poidsRestant, 10);
+    // Fonction helper pour calculer avec une taille de tranche donnée
+    function calculerAvecTranche(poidsTotal, tailleTrancheMax) {
+        let prixTotal = 0;
+        let lav = 0;
+        let poidsRestant = poidsTotal;
 
-        for (let tranche of grille) {
-            if (poidsTraite > tranche.min && poidsTraite <= tranche.max) {
-                prixTotal += tranche.prix;
-                lav++;
-                break;
+        while (poidsRestant > 0) {
+            // Prendre le minimum entre ce qui reste et la taille max de tranche
+            const poidsTraite = Math.min(poidsRestant, tailleTrancheMax);
+
+            // Trouver le tarif correspondant dans la grille
+            for (let tranche of grille) {
+                if (poidsTraite > tranche.min && poidsTraite <= tranche.max) {
+                    prixTotal += tranche.prix;
+                    lav++;
+                    break;
+                }
             }
+
+            poidsRestant -= poidsTraite;
         }
 
-        poidsRestant -= 10;
+        return { prix: prixTotal, lav };
     }
 
-    return { prix: prixTotal, lav };
+    // Calculer avec les 3 stratégies
+    const resultat6kg = calculerAvecTranche(poids, 6);
+    const resultat8kg = calculerAvecTranche(poids, 8);
+    const resultat10kg = calculerAvecTranche(poids, 10);
+
+    // Comparer et retenir le prix le plus bas
+    const resultats = [resultat6kg, resultat8kg, resultat10kg];
+    const meilleurResultat = resultats.reduce((meilleur, actuel) => {
+        return actuel.prix < meilleur.prix ? actuel : meilleur;
+    });
+
+    return meilleurResultat;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -321,14 +340,57 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ============================================
-    // GESTION DES DATES ET HEURES
+    // 🆕 UTILITAIRES POUR L'HEURE ACTUELLE DU BÉNIN (UTC+1)
     // ============================================
-    function getDateAujourdhui() {
-        const aujourd = new Date();
+    
+    /**
+     * Obtient l'heure actuelle au Bénin (UTC+1)
+     * @returns {Date} Date/heure actuelle en timezone Bénin
+     */
+    function getHeureActuelleBenin() {
+        const maintenant = new Date();
+        
+        // Obtenir le timestamp UTC
+        const utcTime = maintenant.getTime() + (maintenant.getTimezoneOffset() * 60000);
+        
+        // Ajouter 1 heure pour le fuseau du Bénin (UTC+1)
+        const beninTime = new Date(utcTime + (3600000 * 1));
+        
+        return beninTime;
+    }
+    
+    /**
+     * Obtient la date du jour au Bénin au format YYYY-MM-DD
+     * @returns {string} Date au format YYYY-MM-DD
+     */
+    function getDateAujourdhuiBenin() {
+        const aujourd = getHeureActuelleBenin();
         const annee = aujourd.getFullYear();
         const mois = String(aujourd.getMonth() + 1).padStart(2, '0');
         const jour = String(aujourd.getDate()).padStart(2, '0');
         return `${annee}-${mois}-${jour}`;
+    }
+    
+    /**
+     * Vérifie si une heure est dans la plage autorisée (9h00 - 19h00)
+     * @param {string} heure - Heure au format HH:MM
+     * @returns {boolean} true si valide, false sinon
+     */
+    function isHeureInPlageAutorisee(heure) {
+        if (!heure) return false;
+        
+        const [h, m] = heure.split(':').map(Number);
+        const heureDecimale = h + (m / 60);
+        
+        // Plage autorisée : 9h00 à 19h00
+        return heureDecimale >= 9.0 && heureDecimale <= 21.0;
+    }
+    
+    // ============================================
+    // GESTION DES DATES ET HEURES
+    // ============================================
+    function getDateAujourdhui() {
+        return getDateAujourdhuiBenin();
     }
     
     const dateCollecte = document.getElementById('dateCollecte');
@@ -375,30 +437,107 @@ document.addEventListener('DOMContentLoaded', function() {
     if (heureCollecte && heureLivraison) {
         heureCollecte.addEventListener('input', function() {
             if (!heureLivraison.value && this.value) {
-                heureLivraison.value = addHours(this.value, 12);
+                heureLivraison.value = addHours(this.value, 8);
             }
             validateHeureEcart();
         });
         
         heureLivraison.addEventListener('input', function() {
             if (!heureCollecte.value && this.value) {
-                heureCollecte.value = addHours(this.value, -12);
+                heureCollecte.value = addHours(this.value, -8);
             }
             validateHeureEcart();
         });
     }
     
-    // ✨ Validation conditionnelle de l'écart de 12h
+    // ============================================
+    // ✨ VALIDATION AVANCÉE DES HEURES (VERSION COMPLÈTE)
+    // ============================================
+    /**
+     * Valide les heures de collecte et livraison selon TOUTES les règles métier :
+     * 
+     * RÈGLES APPLIQUÉES :
+     * 1. Plage horaire autorisée : 9h00 - 19h00 (OBLIGATOIRE pour toutes les heures)
+     * 2. Comparaison avec l'heure actuelle (UNIQUEMENT si date = aujourd'hui)
+     * 3. Écart minimum de 12h entre collecte et livraison (si dates identiques)
+     * 
+     * @returns {boolean} true si toutes les validations passent, false sinon
+     */
     function validateHeureEcart() {
         const dateC = dateCollecte.value;
         const dateL = dateLivraison.value;
         const heureC = heureCollecte.value;
         const heureL = heureLivraison.value;
         
+        // Si des champs manquent, on ne valide pas encore
         if (!dateC || !dateL || !heureC || !heureL) {
             if (heureWarning) heureWarning.style.display = 'none';
             return true;
         }
+        
+        const dateDuJourBenin = getDateAujourdhuiBenin();
+        const heureActuelleBenin = getHeureActuelleBenin();
+        
+        // ============================================
+        // VALIDATION 1 : PLAGE HORAIRE AUTORISÉE (9h00 - 19h00)
+        // Cette règle s'applique TOUJOURS, quelle que soit la date
+        // ============================================
+        
+        if (!isHeureInPlageAutorisee(heureC)) {
+            if (heureWarning) {
+                heureWarning.style.display = 'block';
+                heureWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> L'heure de collecte doit être entre <strong>9h00 et 21h00</strong>.`;
+            }
+            return false;
+        }
+        
+        if (!isHeureInPlageAutorisee(heureL)) {
+            if (heureWarning) {
+                heureWarning.style.display = 'block';
+                heureWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> L'heure de livraison doit être entre <strong>9h00 et 21h00</strong>.`;
+            }
+            return false;
+        }
+        
+        // ============================================
+        // VALIDATION 2 : COMPARAISON AVEC L'HEURE ACTUELLE
+        // Cette règle s'applique UNIQUEMENT si la date = aujourd'hui
+        // ============================================
+        
+        // Vérification pour la date de collecte
+        if (dateC === dateDuJourBenin) {
+            const dtCollecte = new Date(dateC + 'T' + heureC);
+            
+            if (dtCollecte < heureActuelleBenin) {
+                if (heureWarning) {
+                    const heureAffichee = heureActuelleBenin.getHours().toString().padStart(2, '0') + ':' + 
+                                         heureActuelleBenin.getMinutes().toString().padStart(2, '0');
+                    heureWarning.style.display = 'block';
+                    heureWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> L'heure de collecte ne peut pas être antérieure à l'heure actuelle (${heureAffichee}).`;
+                }
+                return false;
+            }
+        }
+        
+        // Vérification pour la date de livraison
+        if (dateL === dateDuJourBenin) {
+            const dtLivraison = new Date(dateL + 'T' + heureL);
+            
+            if (dtLivraison < heureActuelleBenin) {
+                if (heureWarning) {
+                    const heureAffichee = heureActuelleBenin.getHours().toString().padStart(2, '0') + ':' + 
+                                         heureActuelleBenin.getMinutes().toString().padStart(2, '0');
+                    heureWarning.style.display = 'block';
+                    heureWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> L'heure de livraison ne peut pas être antérieure à l'heure actuelle (${heureAffichee}).`;
+                }
+                return false;
+            }
+        }
+        
+        // ============================================
+        // VALIDATION 3 : ÉCART MINIMUM DE 12H (si dates identiques)
+        // Cette règle existait déjà et est PRÉSERVÉE
+        // ============================================
         
         // La contrainte de 12h ne s'applique que si les dates sont identiques
         if (dateC !== dateL) {
@@ -411,16 +550,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const dtLivraison = new Date(dateL + 'T' + heureL);
         const diff = (dtLivraison - dtCollecte) / (1000 * 60 * 60);
         
-        if (diff < 12) {
+        if (diff < 8) {
             if (heureWarning) {
                 heureWarning.style.display = 'block';
                 heureWarning.innerHTML = `<i class="fas fa-exclamation-triangle"></i> L'écart actuel est de ${diff.toFixed(1)}h. Pour une livraison le même jour, un minimum de 12h est requis.`;
             }
             return false;
-        } else {
-            if (heureWarning) heureWarning.style.display = 'none';
-            return true;
         }
+        
+        // ✅ Toutes les validations sont passées
+        if (heureWarning) heureWarning.style.display = 'none';
+        return true;
     }
     
     // ============================================
@@ -497,358 +637,315 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ============================================
-    // GESTION TYPE DE LINGE (Étape 7)
-    // ============================================
-    const btnVolumineux = document.getElementById('btnVolumineux');
-    const btnOrdinaire = document.getElementById('btnOrdinaire');
-    const volumineuxSection = document.getElementById('volumineuxSection');
-    const ordinaireSection = document.getElementById('ordinaireSection');
-    
-    if (btnVolumineux && volumineuxSection) {
-        btnVolumineux.addEventListener('click', function() {
-            this.classList.toggle('active');
-            
-            if (this.classList.contains('active')) {
-                volumineuxSection.style.display = 'block';
-            } else {
-                volumineuxSection.style.display = 'none';
-                volumineuxSection.querySelectorAll('.color-card').forEach(card => {
-                    card.classList.remove('active');
-                });
-                volumineuxSection.querySelectorAll('.poids-group').forEach(group => {
-                    group.style.display = 'none';
-                });
-            }
-        });
-    }
-    
-    if (btnOrdinaire && ordinaireSection) {
-        btnOrdinaire.addEventListener('click', function() {
-            this.classList.toggle('active');
-            
-            if (this.classList.contains('active')) {
-                ordinaireSection.style.display = 'block';
-            } else {
-                ordinaireSection.style.display = 'none';
-                ordinaireSection.querySelectorAll('.color-card').forEach(card => {
-                    card.classList.remove('active');
-                });
-                ordinaireSection.querySelectorAll('.poids-group').forEach(group => {
-                    group.style.display = 'none';
-                });
-            }
-        });
-    }
-    
-    // ============================================
-    // ✨ GESTION DES COULEURS AVEC CONSERVATION DES DONNÉES
-    // ============================================
-    const colorCards = document.querySelectorAll('.color-card');
-    
-    colorCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const color = this.getAttribute('data-color');
-            const volume = this.getAttribute('data-volume');
-            const groupId = color + volume.charAt(0).toUpperCase() + volume.slice(1);
-            const poidsGroup = document.getElementById(groupId);
-            
-            // Toggle active
-            this.classList.toggle('active');
-            
-            if (this.classList.contains('active')) {
-                // Afficher le groupe
-                poidsGroup.style.display = 'block';
-            } else {
-                // Masquer le groupe SANS réinitialiser les valeurs
-                // Les valeurs sont conservées grâce au localStorage
-                poidsGroup.style.display = 'none';
-            }
-            
-            // Sauvegarder immédiatement
-            saveFormData();
-        });
-    });
-    
-    // ============================================
-    // GESTION BOUTONS TEMPÉRATURE
+    // GESTION BOUTONS DE TEMPÉRATURE
     // ============================================
     const tempButtons = document.querySelectorAll('.temp-btn');
     
     tempButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
+        button.addEventListener('click', function() {
+            const category = this.dataset.category;
+            const temp = this.dataset.temp;
             
-            const temp = this.getAttribute('data-temp');
-            const category = this.getAttribute('data-category');
-            const hiddenInput = document.getElementById(`${category}_temperature`);
+            // Retirer la classe active de tous les boutons de cette catégorie
+            document.querySelectorAll(`.temp-btn[data-category="${category}"]`).forEach(btn => {
+                btn.classList.remove('active');
+            });
             
-            // Retirer l'active de tous les boutons de la même catégorie
-            const categoryButtons = document.querySelectorAll(`.temp-btn[data-category="${category}"]`);
-            categoryButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Activer ce bouton
+            // Ajouter la classe active au bouton cliqué
             this.classList.add('active');
             
             // Mettre à jour le champ caché
-            if (hiddenInput) {
-                hiddenInput.value = temp;
+            const tempInput = document.getElementById(`${category}_temperature`);
+            if (tempInput) {
+                tempInput.value = temp;
+                saveFormData(); // Sauvegarder après changement
             }
-            
-            // Sauvegarder
-            saveFormData();
         });
+    });
+    
+    // ============================================
+    // CALCUL DU POIDS TOTAL
+    // ============================================
+    function calculerPoidsTotal() {
+        let total = 0;
+        const categories = ['a1', 'b1', 'c1', 'a2', 'b2', 'c2'];
+        
+        categories.forEach(cat => {
+            const input = document.querySelector(`input[name="${cat}_poids"]`);
+            if (input) {
+                const value = parseFloat(input.value) || 0;
+                total += value;
+            }
+        });
+        
+        const poidsTotalInput = document.getElementById('poidsTotal');
+        if (poidsTotalInput) {
+            poidsTotalInput.value = total.toFixed(1);
+        }
+        
+        return total;
+    }
+    
+    // Écouter les changements sur tous les inputs de poids
+    const poidsInputs = document.querySelectorAll('input[name$="_poids"]');
+    poidsInputs.forEach(input => {
+        input.addEventListener('input', calculerPoidsTotal);
     });
     
     // ============================================
     // VALIDATION DES ÉTAPES
     // ============================================
     function validateStep(step) {
-        // Étape 1 : Informations client
-        if (step === 1) {
-            const nomClient = document.getElementById('nomClient').value.trim();
-            const telephone = document.getElementById('telephone').value.trim();
-            
-            if (!nomClient) {
-                alert('Veuillez renseigner le nom du client.');
-                return false;
-            }
-            
-            if (!telephone) {
-                alert('Veuillez renseigner le numéro de téléphone.');
-                return false;
-            }
-            
-            const telRegex = /^(\d{8}|\d{11})$/;
-            if (!telRegex.test(telephone.replace(/\s/g, ''))) {
-                alert('Le numéro de téléphone doit contenir 8 ou 11 chiffres.');
-                return false;
-            }
-            
-            return true;
-        }
-        
-        // Étape 2 : Adresses
-        if (step === 2) {
-            const adresseC = adresseCollecte.value.trim();
-            const adresseL = adresseLivraison.value.trim();
-            
-            if (!adresseC && !adresseL) {
-                alert('Veuillez renseigner au moins une adresse (collecte ou livraison).');
-                return false;
-            }
-            
-            return true;
-        }
-        
-        // Étape 3 : Dates et heures
-        if (step === 3) {
-            const dateC = dateCollecte.value;
-            const dateL = dateLivraison.value;
-            const heureC = heureCollecte.value;
-            const heureL = heureLivraison.value;
-            
-            if (!dateC && !dateL) {
-                alert('Veuillez renseigner au moins une date (collecte ou livraison).');
-                return false;
-            }
-            
-            if (!heureC && !heureL) {
-                alert('Veuillez renseigner au moins une heure (collecte ou livraison).');
-                return false;
-            }
-            
-            if (!validateHeureEcart()) {
-                alert('L\'écart entre la collecte et la livraison doit être d\'au moins 12 heures pour une livraison le même jour.');
-                return false;
-            }
-            
-            return true;
-        }
-        
-        // Étape 4 : Disponibilité pèse
-        if (step === 4) {
-            const peseChoice = document.querySelector('input[name="disponibilitePese"]:checked');
-            
-            if (!peseChoice) {
-                alert('Veuillez indiquer si vous disposez d\'une pèse.');
-                return false;
-            }
-            
-            if (peseChoice.value === 'non') {
-                const optionChoice = document.querySelector('input[name="optionNonPese"]:checked');
+        switch(step) {
+            case 1:
+                // Validation informations client
+                const nomClient = document.getElementById('nomClient');
+                const telephone = document.getElementById('telephone');
                 
-                if (!optionChoice) {
-                    alert('Veuillez choisir une option (laverie ou commande à blanc).');
+                if (!nomClient || !nomClient.value.trim()) {
+                    alert('Veuillez entrer votre nom complet.');
                     return false;
                 }
                 
-                // Ne pas bloquer ici - la redirection sera gérée dans btnNext
-            }
-            
-            return true;
-        }
-        
-        // Étape 5 : Protocole (pas de validation)
-        if (step === 5) {
-            return true;
-        }
-        
-        // Étape 6 : Poids total
-        if (step === 6) {
-            const poidsTotal = parseFloat(document.getElementById('poidsTotal').value);
-            
-            if (!poidsTotal || poidsTotal <= 0) {
-                alert('Veuillez renseigner le poids total de votre linge.');
-                return false;
-            }
-            
-            return true;
-        }
-        
-        // Étape 7 : Poids par sous-tas + températures + repassage
-        if (step === 7) {
-            const poidsTotal = parseFloat(document.getElementById('poidsTotal').value);
-            
-            // Collecter tous les poids (seulement blanc et couleur, pas noir)
-            const categories = ['a1', 'b1', 'a2', 'b2'];
-            let sommePoids = 0;
-            let auMoinsUnPoids = false;
-            let validationError = false;
-            
-            categories.forEach(cat => {
-                const poidsInput = document.querySelector(`input[name="${cat}_poids"]`);
-                const tempInput = document.getElementById(`${cat}_temperature`);
+                if (!telephone || !telephone.value.trim()) {
+                    alert('Veuillez entrer votre numéro de téléphone.');
+                    return false;
+                }
                 
-                if (poidsInput) {
-                    const poids = parseFloat(poidsInput.value) || 0;
-                    
-                    if (poids > 0) {
-                        auMoinsUnPoids = true;
-                        sommePoids += poids;
-                        
-                        // Vérifier qu'une température est sélectionnée SEULEMENT si poids > 0
-                        if (!tempInput || !tempInput.value) {
-                            alert(`Veuillez sélectionner une température pour le sous-tas ${cat.toUpperCase()}.`);
-                            validationError = true;
-                        }
+                // Validation format téléphone (optionnel mais recommandé)
+                const phoneRegex = /^[0-9]{8,}$/;
+                if (!phoneRegex.test(telephone.value.replace(/\s/g, ''))) {
+                    alert('Veuillez entrer un numéro de téléphone valide (minimum 8 chiffres).');
+                    return false;
+                }
+                
+                return true;
+                
+            case 2:
+                // Validation adresses
+                if (!adresseCollecte || !adresseCollecte.value.trim()) {
+                    alert('Veuillez sélectionner une adresse de collecte.');
+                    return false;
+                }
+                
+                if (!adresseLivraison || !adresseLivraison.value.trim()) {
+                    alert('Veuillez sélectionner une adresse de livraison.');
+                    return false;
+                }
+                
+                return true;
+                
+            case 3:
+                // Validation dates et heures
+                if (!dateCollecte || !dateCollecte.value) {
+                    alert('Veuillez sélectionner une date de collecte.');
+                    return false;
+                }
+                
+                if (!dateLivraison || !dateLivraison.value) {
+                    alert('Veuillez sélectionner une date de livraison.');
+                    return false;
+                }
+                
+                if (!heureCollecte || !heureCollecte.value) {
+                    alert('Veuillez sélectionner une heure de collecte.');
+                    return false;
+                }
+                
+                if (!heureLivraison || !heureLivraison.value) {
+                    alert('Veuillez sélectionner une heure de livraison.');
+                    return false;
+                }
+                
+                // ✅ VALIDATION AVANCÉE DES HEURES
+                if (!validateHeureEcart()) {
+                    return false;
+                }
+                
+                return true;
+                
+            case 4:
+                // Validation disponibilité pèse
+                const peseChoice = document.querySelector('input[name="disponibilitePese"]:checked');
+                if (!peseChoice) {
+                    alert('Veuillez indiquer si vous disposez d\'un pèse-personne.');
+                    return false;
+                }
+                
+                // Si "non", vérifier qu'une option est sélectionnée
+                if (peseChoice.value === 'non') {
+                    const optionChoice = document.querySelector('input[name="optionNonPese"]:checked');
+                    if (!optionChoice) {
+                        alert('Veuillez choisir une option.');
+                        return false;
                     }
                 }
-            });
-            
-            if (validationError) {
-                return false;
-            }
-            
-            if (!auMoinsUnPoids) {
-                alert('Veuillez renseigner au moins un poids de linge.');
-                return false;
-            }
-            
-            // Vérifier la cohérence avec le poids total (±1kg de tolérance)
-            const diff = Math.abs(sommePoids - poidsTotal);
-            
-            if (diff > 1) {
-                const msgElement = document.getElementById('poidsValidationMessage');
-                const txtElement = document.getElementById('poidsValidationText');
                 
-                if (msgElement && txtElement) {
-                    txtElement.textContent = `La somme des poids des sous-tas (${sommePoids.toFixed(1)} kg) ne correspond pas au poids total (${poidsTotal.toFixed(1)} kg). Différence : ${diff.toFixed(1)} kg (maximum autorisé : ± 1 kg)`;
-                    msgElement.style.display = 'block';
+                return true;
+                
+            case 5:
+                // Validation poids A1 (t-shirts)
+                const a1Poids = document.querySelector('input[name="a1_poids"]');
+                const a1Temp = document.getElementById('a1_temperature');
+                
+                if (a1Poids && parseFloat(a1Poids.value) > 0) {
+                    if (!a1Temp || !a1Temp.value) {
+                        alert('Veuillez sélectionner une température pour les T-shirts, débardeurs.');
+                        return false;
+                    }
                 }
                 
-                alert(`La somme des poids (${sommePoids.toFixed(1)} kg) ne correspond pas au poids total (${poidsTotal.toFixed(1)} kg).\nDifférence : ${diff.toFixed(1)} kg (max : ± 1 kg)`);
-                return false;
-            } else {
-                const msgElement = document.getElementById('poidsValidationMessage');
-                if (msgElement) msgElement.style.display = 'none';
-            }
-            
-            // Validation repassage
-            const repassageChoice = document.querySelector('input[name="repassage"]:checked');
-            if (!repassageChoice) {
-                alert('Veuillez indiquer si vous souhaitez le service de repassage.');
-                return false;
-            }
-            
-            return true;
+                return true;
+                
+            case 6:
+                // Validation poids B1 (chemises)
+                const b1Poids = document.querySelector('input[name="b1_poids"]');
+                const b1Temp = document.getElementById('b1_temperature');
+                
+                if (b1Poids && parseFloat(b1Poids.value) > 0) {
+                    if (!b1Temp || !b1Temp.value) {
+                        alert('Veuillez sélectionner une température pour les Chemises, chemisiers.');
+                        return false;
+                    }
+                }
+                
+                // Validation C1 (vêtements volumineux ordinaires)
+                const c1Poids = document.querySelector('input[name="c1_poids"]');
+                const c1Temp = document.getElementById('c1_temperature');
+                
+                if (c1Poids && parseFloat(c1Poids.value) > 0) {
+                    if (!c1Temp || !c1Temp.value) {
+                        alert('Veuillez sélectionner une température pour les vêtements volumineux ordinaires.');
+                        return false;
+                    }
+                }
+                
+                return true;
+                
+            case 7:
+                // Validation poids A2, B2, C2
+                const a2Poids = document.querySelector('input[name="a2_poids"]');
+                const a2Temp = document.getElementById('a2_temperature');
+                
+                if (a2Poids && parseFloat(a2Poids.value) > 0) {
+                    if (!a2Temp || !a2Temp.value) {
+                        alert('Veuillez sélectionner une température pour les Jeans, pantalons.');
+                        return false;
+                    }
+                }
+                
+                const b2Poids = document.querySelector('input[name="b2_poids"]');
+                const b2Temp = document.getElementById('b2_temperature');
+                
+                if (b2Poids && parseFloat(b2Poids.value) > 0) {
+                    if (!b2Temp || !b2Temp.value) {
+                        alert('Veuillez sélectionner une température pour les Pulls, sweats.');
+                        return false;
+                    }
+                }
+                
+                const c2Poids = document.querySelector('input[name="c2_poids"]');
+                const c2Temp = document.getElementById('c2_temperature');
+                
+                if (c2Poids && parseFloat(c2Poids.value) > 0) {
+                    if (!c2Temp || !c2Temp.value) {
+                        alert('Veuillez sélectionner une température pour les vêtements volumineux délicats.');
+                        return false;
+                    }
+                }
+                
+                // Vérifier qu'au moins un poids a été saisi
+                const totalPoids = calculerPoidsTotal();
+                if (totalPoids <= 0) {
+                    alert('Veuillez saisir au moins un poids de vêtement.');
+                    return false;
+                }
+                
+                return true;
+                
+            case 8:
+                // Validation repassage
+                const repassageChoice = document.querySelector('input[name="repassage"]:checked');
+                if (!repassageChoice) {
+                    alert('Veuillez indiquer si vous souhaitez le service de repassage.');
+                    return false;
+                }
+                
+                return true;
+                
+            case 9:
+                // Validation paiement
+                const paiementChoice = document.querySelector('input[name="paiement"]:checked');
+                if (!paiementChoice) {
+                    alert('Veuillez sélectionner un mode de paiement.');
+                    return false;
+                }
+                
+                return true;
+                
+            default:
+                return true;
         }
-        
-        // Étape 8 : Récapitulatif (pas de validation)
-        if (step === 8) {
-            return true;
-        }
-        
-        // Étape 9 : Moyen de paiement
-        if (step === 9) {
-            const paiementChoice = document.querySelector('input[name="paiement"]:checked');
-            
-            if (!paiementChoice) {
-                alert('Veuillez choisir un moyen de paiement.');
-                return false;
-            }
-            
-            return true;
-        }
-        
-        return true;
     }
     
     // ============================================
-    // ✅ CALCUL DU RÉCAPITULATIF (nouvelle logique)
+    // CALCUL DU RÉCAPITULATIF
     // ============================================
     function calculerRecapitulatif() {
         console.log('=== DÉBUT CALCUL RÉCAPITULATIF ===');
         
-        let prixLavageTotal = 0;
-        let lavTotal = 0;
-        let poidsVolumineuxTotal = 0;
+        // Collecte des données
+        const categories = ['a1', 'b1', 'c1', 'a2', 'b2', 'c2'];
         let poidsOrdinaireTotal = 0;
+        let poidsVolumineuxTotal = 0;
         let poidsGrandTotal = 0;
+        let prixLavageTotal = 0;
+        let totalLavages = 0;
         
-        // Champs à traiter (seulement blanc et couleur)
-        const champs = [
-            { cat: 'a1', temp: null, type: 'volumineux' },
-            { cat: 'b1', temp: null, type: 'volumineux' },
-            { cat: 'a2', temp: null, type: 'ordinaire' },
-            { cat: 'b2', temp: null, type: 'ordinaire' }
-        ];
-        
-        champs.forEach(field => {
-            const poidsInput = document.querySelector(`input[name="${field.cat}_poids"]`);
-            const tempInput = document.getElementById(`${field.cat}_temperature`);
+        categories.forEach(cat => {
+            const poidsInput = document.querySelector(`input[name="${cat}_poids"]`);
+            const tempInput = document.getElementById(`${cat}_temperature`);
             
             if (poidsInput && tempInput) {
                 const poids = parseFloat(poidsInput.value) || 0;
                 const temp = tempInput.value;
                 
-                console.log(`Champ ${field.cat}: poids=${poids}, temp=${temp}`);
-                
                 if (poids > 0 && temp) {
-                    const result = field.type === 'volumineux'
-                        ? calculerPrixLavageVolumineux(poids, temp)
-                        : calculerPrixLavageOrdinaire(poids, temp);
-                    
-                    console.log(`  -> Résultat: prix=${result.prix}, lav=${result.lav}`);
-                    
-                    prixLavageTotal += result.prix;
-                    lavTotal += result.lav;
+                    console.log(`Catégorie ${cat}: poids=${poids}, temp=${temp}`);
                     
                     poidsGrandTotal += poids;
-                    if (field.type === 'volumineux') {
+                    
+                    // c1 et c2 = volumineux
+                    if (cat === 'c1' || cat === 'c2') {
                         poidsVolumineuxTotal += poids;
+                        const result = calculerPrixLavageVolumineux(poids, temp);
+                        prixLavageTotal += result.prix;
+                        totalLavages += result.lav;
+                        console.log(`${cat} (volumineux): prix=${result.prix}, lav=${result.lav}`);
                     } else {
+                        // a1, b1, a2, b2 = ordinaires
                         poidsOrdinaireTotal += poids;
+                        const result = calculerPrixLavageOrdinaire(poids, temp);
+                        prixLavageTotal += result.prix;
+                        totalLavages += result.lav;
+                        console.log(`${cat} (ordinaire): prix=${result.prix}, lav=${result.lav}`);
                     }
                 }
             }
         });
         
-        console.log(`Totaux: lavage=${prixLavageTotal}, lav=${lavTotal}, poids=${poidsGrandTotal}`);
+        console.log(`Totaux: Ordinaire=${poidsOrdinaireTotal}, Volumineux=${poidsVolumineuxTotal}, Grand Total=${poidsGrandTotal}`);
+        console.log(`Prix lavage BRUT (avant fidélité)=${prixLavageTotal}, Nombre lavages=${totalLavages}`);
         
-        // Calcul de la réduction fidélité
-        const totalLavages = userNombreLavage + lavTotal;
-        const reductionFidelite = Math.floor(totalLavages / 11) * 2500;
-        const prixLavageFinal = Math.max(0, prixLavageTotal - reductionFidelite);
+        // Appliquer la fidélité
+        let reductionFidelite = 0;
+        let prixLavageFinal = prixLavageTotal;
+        
+        if (userNombreLavage + totalLavages >= 11) {
+            const cyclesComplets = Math.floor((userNombreLavage + totalLavages) / 11);
+            reductionFidelite = cyclesComplets * 2000;
+            prixLavageFinal = Math.max(0, prixLavageTotal - reductionFidelite);
+        }
         
         console.log(`Fidélité: userNombreLavage=${userNombreLavage}, totalLavages=${totalLavages}, réduction=${reductionFidelite}`);
         
